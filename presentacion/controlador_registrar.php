@@ -1,10 +1,11 @@
 <?php
 // Incluimos el archivo de conexión
 require '../datos/conexion.php';
+session_start(); // Iniciar la sesión
 
-// Inicializamos variables para mensajes
-$error_message = "";
-$success_message = "";
+// Habilitar la visualización de errores (opcional)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Verificamos que se haya enviado el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -16,9 +17,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Validaciones básicas
     if (empty($username) || empty($email) || empty($password) || empty($confirm_password)) {
-        $error_message = "Todos los campos son obligatorios.";
+        $_SESSION['error_message'] = "Todos los campos son obligatorios.";
     } elseif ($password !== $confirm_password) {
-        $error_message = "Las contraseñas no coinciden.";
+        $_SESSION['error_message'] = "Las contraseñas no coinciden.";
     } else {
         try {
             // Comprobar si el usuario ya existe
@@ -26,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $usuarioExistente = $coleccionUsuarios->findOne(['email' => $email]);
 
             if ($usuarioExistente) {
-                $error_message = "El correo electrónico ya está registrado.";
+                $_SESSION['error_message'] = "El correo electrónico ya está registrado.";
             } else {
                 // Guardar el nuevo usuario en la base de datos
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -38,18 +39,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ]);
 
                 if ($resultado->getInsertedCount() > 0) {
-                    $success_message = "Usuario registrado exitosamente.";
+                    $_SESSION['success_message'] = "Usuario registrado exitosamente.";
                 } else {
-                    $error_message = "Error al registrar el usuario. Inténtalo de nuevo.";
+                    $_SESSION['error_message'] = "Error al registrar el usuario. Inténtalo de nuevo.";
                 }
             }
         } catch (Exception $e) {
-            $error_message = "Error al procesar la solicitud: " . $e->getMessage();
+            $_SESSION['error_message'] = "Error al procesar la solicitud: " . $e->getMessage();
         }
     }
-}
 
-// Incluir la vista de registro de nuevo para mostrar mensajes
-header( 'registro.php'); // Asegúrate de que el archivo se llame correctamente y esté en la ubicación correcta
-?>
+    // Redirigir a la página de registro usando JavaScript como alternativa
+    echo "<script>window.location.href = 'registrar.php';</script>";
+    exit();
+}
 

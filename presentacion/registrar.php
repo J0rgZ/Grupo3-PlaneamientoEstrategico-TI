@@ -1,3 +1,13 @@
+<?php
+session_start(); // Iniciar la sesión
+$error_message = !empty($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
+$success_message = !empty($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
+
+// Limpiar mensajes de sesión
+unset($_SESSION['error_message']);
+unset($_SESSION['success_message']);
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -179,16 +189,13 @@
             </div>
         </form>
 
-        <!-- Enlace a la página de inicio de sesión -->
         <div class="login-footer">
             <p>¿Ya tienes cuenta? <a href="login.php">Inicia sesión aquí</a></p>
         </div>
     </div>
 
-    <!-- Bootstrap JS y dependencias de Bootstrap (Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
-
 </body>
 </html>
 
