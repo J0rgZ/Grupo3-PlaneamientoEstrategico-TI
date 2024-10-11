@@ -27,7 +27,6 @@
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 380px;
-            transform: translateY(50px);
             animation: fadeIn 0.5s ease-out forwards;
         }
 
@@ -49,7 +48,6 @@
             font-size: 2rem;
             text-align: center;
             font-weight: 700;
-            position: relative;
         }
 
         h1 i {
@@ -67,7 +65,6 @@
             border-radius: 8px;
             border: 1px solid #e1e8f1;
             transition: border-color 0.3s ease-in-out;
-            padding-left: 50px;
         }
 
         .form-control:focus {
@@ -76,19 +73,8 @@
             outline: none;
         }
 
-        .form-group .input-group-text {
-            background-color: #f0f4f7;
-            border: 1px solid #e1e8f1;
-            border-radius: 8px 0 0 8px;
-            color: #4b6fe0;
-            padding: 10px 15px;
-            font-size: 1.1rem;
-            width: 60px;
-        }
-
         .btn-primary {
             background-color: #4b6fe0;
-            border-color: #4b6fe0;
             border-radius: 8px;
             padding: 12px 15px;
             width: 100%;
@@ -100,7 +86,6 @@
 
         .btn-primary:hover {
             background-color: #4057d0;
-            border-color: #4057d0;
         }
 
         .error-message {
@@ -206,3 +191,4 @@
 
 </body>
 </html>
+
