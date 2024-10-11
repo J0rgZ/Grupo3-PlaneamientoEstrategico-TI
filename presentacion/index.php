@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plan Estratégico</title>
     <!-- Enlaza el archivo CSS externo -->
-    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="estilos.css"> <!-- Incluye tu archivo CSS aquí -->
 </head>
 <body>
 
@@ -42,16 +42,13 @@
     <button class="long-button">INFORMACIÓN</button>
 
     <div class="button-grid">
-        <button onclick="window.location.href='mision.php'">1. MISIÓN</button>
+    <button class="nav-button" onclick="window.location.href='mision.php'">1. MISIÓN</button>
         <button class="nav-button" onclick="window.location.href='vision.php'">2. VISIÓN</button>
-        <button>3. VALORES</button>
-        <button>4. OBJETIVOS</button>
-        <button>5. ANÁLISIS INTERNO Y EXTERNO</button>
-        <button>6. CADENA DE VALOR</button>
-        <button>7. MATRIZ PARTICIPACIÓN</button>
+        <button class="nav-button" onclick="window.location.href='valores.php'">3. VALORES</button>
+        <button class="nav-button" onclick="window.location.href='objetivos.php'">4. OBJETIVOS</button>
     </div>
     
-    <button class="long-button">RESUMEN DEL PLAN EJECUTIVO</button>
+    <button class="nav-button" onclick="window.location.href='resumen.php'">RESUMEN DEL PLAN EJECUTIVO</button>
 
 </body>
 </html>
