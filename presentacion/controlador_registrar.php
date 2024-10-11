@@ -50,6 +50,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Incluir la vista de registro de nuevo para mostrar mensajes
-include 'registro.php'; // Asegúrate de que el archivo se llame correctamente y esté en la ubicación correcta
+header( 'registro.php'); // Asegúrate de que el archivo se llame correctamente y esté en la ubicación correcta
 ?>
 
