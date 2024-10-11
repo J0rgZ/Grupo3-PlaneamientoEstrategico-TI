@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión - Sistema Plan Estrategico</title>
+    <title>Registro - Sistema de Usuarios</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,7 +20,7 @@
             margin: 0;
         }
 
-        .login-container {
+        .register-container {
             background-color: #fff;
             border-radius: 12px;
             padding: 40px;
@@ -86,12 +86,6 @@
             width: 60px;
         }
 
-        /* Estilo para el botón de mostrar/ocultar contraseña */
-        .input-group-text .toggle-password {
-            cursor: pointer;
-            color: #4b6fe0;
-        }
-
         .btn-primary {
             background-color: #4b6fe0;
             border-color: #4b6fe0;
@@ -120,6 +114,17 @@
             border: 1px solid #f5c6cb;
         }
 
+        .success-message {
+            color: #28a745;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            padding: 10px;
+            background-color: #d4edda;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+        }
+
         .login-footer {
             text-align: center;
             margin-top: 20px;
@@ -136,65 +141,62 @@
         .login-footer a:hover {
             text-decoration: underline;
         }
-
-        /* Animaciones en el icono de error */
-        .error-message i {
-            margin-right: 5px;
-            animation: shake 0.5s ease infinite alternate;
-        }
-
-        @keyframes shake {
-            0% {
-                transform: translateX(-5px);
-            }
-            100% {
-                transform: translateX(5px);
-            }
-        }
-
-        /* Mejoras para el focus y efectos visuales en los campos */
-        .form-control:focus + .input-group-text {
-            background-color: #e1e8f1;
-        }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <h1><i class="fa fa-sign-in-alt"></i> Iniciar sesión</h1>
+    <div class="register-container">
+        <h1><i class="fa fa-user-plus"></i> Registrarse</h1>
 
-        <!-- Mostrar mensaje de error si las credenciales son incorrectas -->
-        <?php if (isset($_GET['error'])): ?>
-            <p class="error-message"><i class="fa fa-exclamation-circle"></i> Credenciales incorrectas. Intenta nuevamente.</p>
+        <!-- Mostrar mensajes de error o éxito -->
+        <?php if (!empty($error_message)): ?>
+            <p class="error-message"><?php echo $error_message; ?></p>
+        <?php elseif (!empty($success_message)): ?>
+            <p class="success-message"><?php echo $success_message; ?></p>
         <?php endif; ?>
 
-        <form action="controlador_login.php" method="POST">
-            <!-- Campo de correo -->
+        <form action="controlador_registrar.php" method="POST">
+            <!-- Campo de nombre de usuario -->
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-user"></i></span>
+                    <input type="text" name="username" class="form-control" placeholder="Nombre de usuario" required>
+                </div>
+            </div>
+
+            <!-- Campo de correo electrónico -->
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-envelope"></i></span>
                     <input type="email" name="email" class="form-control" placeholder="Correo electrónico" required>
                 </div>
             </div>
-            
+
             <!-- Campo de contraseña -->
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-lock"></i></span>
                     <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required>
-                    <span class="input-group-text toggle-password" onclick="togglePassword()"><i class="fa fa-eye"></i></span>
                 </div>
             </div>
-            
+
+            <!-- Campo de confirmación de contraseña -->
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                    <input type="password" name="confirm_password" class="form-control" placeholder="Confirmar contraseña" required>
+                </div>
+            </div>
+
             <!-- Botón de submit -->
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+                <button type="submit" class="btn btn-primary">Registrarse</button>
             </div>
         </form>
 
-        <!-- Enlace de registro -->
+        <!-- Enlace a la página de inicio de sesión -->
         <div class="login-footer">
-            <p>¿No tienes cuenta? <a href="registrar.php">Regístrate aquí</a></p>
+            <p>¿Ya tienes cuenta? <a href="login.php">Inicia sesión aquí</a></p>
         </div>
     </div>
 
@@ -202,21 +204,5 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
 
-    <!-- Script para mostrar/ocultar contraseña -->
-    <script>
-        function togglePassword() {
-            var passwordField = document.getElementById('password');
-            var passwordIcon = document.querySelector('.toggle-password i');
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                passwordIcon.classList.remove('fa-eye');
-                passwordIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                passwordIcon.classList.remove('fa-eye-slash');
-                passwordIcon.classList.add('fa-eye');
-            }
-        }
-    </script>
 </body>
 </html>
