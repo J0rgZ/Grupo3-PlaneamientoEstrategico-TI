@@ -1,3 +1,13 @@
+<?php
+session_start(); // Iniciar la sesión
+
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
