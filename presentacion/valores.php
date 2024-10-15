@@ -1,32 +1,6 @@
 <?php
-// Incluir el archivo de conexión
-require '../datos/conexion.php'; // Ajusta la ruta según sea necesario
-
-// Verificar si hay datos POST para insertar
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores'])) {
-    $valores = $_POST['valores']; // Captura los valores desde el formulario
-
-    // Seleccionar la colección (ajusta el nombre de la colección si es necesario)
-    $collection = $db->valores;
-
-    // Verificar si el valor ya existe en la colección (para evitar duplicados)
-    $existingValue = $collection->findOne(['valores' => $valores]);
-
-    if ($existingValue) {
-        echo "El valor ya existe en la base de datos.";
-    } else {
-        // Insertar los valores en la colección de MongoDB
-        $insertResult = $collection->insertOne([
-            'valores' => $valores,
-            'fecha' => new MongoDB\BSON\UTCDateTime() // Añade una marca de tiempo
-        ]);
-
-        echo "Valores guardados con éxito. ID de inserción: " . $insertResult->getInsertedId();
-    }
-}
+// valores.php
 ?>
-
-<!-- HTML para el formulario -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,10 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores'])) {
     <link rel="stylesheet" href="estilos.css"> <!-- Incluye tu archivo CSS aquí -->
 </head>
 <body>
-    <div class="navigation-buttons">
-        <button class="nav-button" onclick="window.location.href='index.php'">INDICE</button>
-        
-    </div>
     <div class="valores-container">
         <h2 class="valores-header">3. VALORES</h2>
         <p class="valores-text">
@@ -53,16 +23,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores'])) {
             <li>Innovación</li>
         </ul>
         
-        <!-- Formulario para ingresar valores -->
-        <form method="POST" action="">
-            <textarea name="valores" placeholder="Ingrese los valores de su empresa aquí..."></textarea>
-            <button type="submit" class="save-button">Guardar Valores</button>
+        <!-- Formulario que envía datos a guardar.php -->
+        <form method="POST" action="../logica/logicaValores.php">
+            <!-- Área de texto para ingresar valores -->
+            <textarea name="valores" placeholder="Ingrese los valores de su empresa aquí..." required></textarea>
+            
+            <div class="navigation-buttons">
+                <button type="submit" name="action" value="index" class="nav-button">INDICE</button>
+                <button type="submit" name="action" value="vision" class="nav-button">2. VISIÓN</button>
+                <button type="submit" name="action" value="resumen" class="nav-button">4. RESUMEN</button>
+            </div>
         </form>
-    </div>
-
-    <div class="navigation-buttons">
-        <button class="nav-button" onclick="window.location.href='vision.html'">2. VISIÓN</button>
-        <button class="nav-button" onclick="window.location.href='estrategia.html'">4. ESTRATEGIA</button>
     </div>
 </body>
 </html>
