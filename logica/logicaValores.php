@@ -1,56 +1,72 @@
 <?php
-// guardar.php
+// logicaValores.php
+
+session_start();
 
 // Incluir el archivo de conexión a MongoDB
-require '../datos/conexion.php'; // Asegúrate de que la ruta sea correcta
+require '../datos/conexion.php'; // Asegúrate de que la ruta es correcta
+
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
 
 // Verificar si se ha recibido una solicitud POST con los datos necesarios
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($_POST['action'])) {
+
+    // Verificar el token CSRF
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error_message'] = "Token CSRF inválido.";
+        header("Location: ../presentacion/valores.php");
+        exit();
+    }
+
     // Capturar y limpiar los datos del formulario
     $valores = trim($_POST['valores']);
     $accion = $_POST['action'];
 
-    // Verificar que el campo 'valores' no esté vacío
+    // Validar que el campo 'valores' no esté vacío
     if ($valores !== "") {
         try {
-            // Seleccionar la colección de MongoDB (ajusta el nombre si es necesario)
+            // Seleccionar la colección de MongoDB
             $collection = $db->valores;
 
-            // Verificar si el valor ya existe en la colección para evitar duplicados
-            $existingValue = $collection->findOne(['valores' => $valores]);
+            // Recuperar el ID del usuario desde la sesión
+            $user_id = $_SESSION['user_id'];
 
-            if ($existingValue) {
-                // Mostrar un mensaje de error y redirigir de vuelta al formulario
-                echo "<script>
-                        alert('El valor ya existe en la base de datos.');
-                        window.history.back();
-                      </script>";
-                exit();
-            } else {
-                // Insertar los valores en la colección con una marca de tiempo
-                $insertResult = $collection->insertOne([
+            // Definir el filtro para buscar el documento del usuario
+            $filtro = ['user_id' => $user_id];
+
+            // Definir los datos a actualizar
+            $datos_actualizados = [
+                '$set' => [
                     'valores' => $valores,
                     'fecha' => new MongoDB\BSON\UTCDateTime()
-                ]);
+                ]
+            ];
 
-                // Opcional: Puedes manejar la respuesta según necesites
-                // Por ejemplo, podrías almacenar el ID insertado si lo necesitas
+            // Definir opciones, como upsert (insertar si no existe)
+            $opciones = ['upsert' => true];
+
+            // Realizar la actualización (o inserción si no existe)
+            $resultado = $collection->updateOne($filtro, $datos_actualizados, $opciones);
+
+            // Verificar si la operación fue exitosa
+            if ($resultado->getModifiedCount() > 0 || $resultado->getUpsertedCount() > 0) {
+                $_SESSION['success_message'] = "Valores guardados exitosamente.";
+            } else {
+                $_SESSION['error_message'] = "No se realizaron cambios en los valores.";
             }
+
         } catch (Exception $e) {
-            // Manejar errores de conexión o inserción
-            echo "<script>
-                    alert('Ocurrió un error al guardar los valores: " . addslashes($e->getMessage()) . "');
-                    window.history.back();
-                  </script>";
-            exit();
+            // Manejar errores de conexión o actualización
+            error_log("Error al guardar/actualizar valores: " . $e->getMessage());
+            $_SESSION['error_message'] = "Ocurrió un error al guardar los valores. Por favor, intenta nuevamente.";
         }
     } else {
-        // Mostrar un mensaje si el campo 'valores' está vacío y redirigir de vuelta al formulario
-        echo "<script>
-                alert('Por favor, ingrese los valores antes de navegar.');
-                window.history.back();
-              </script>";
-        exit();
+        // Manejar el caso donde el campo 'valores' está vacío
+        $_SESSION['error_message'] = "Por favor, ingresa los valores antes de continuar.";
     }
 
     // Redirigir según la acción seleccionada
@@ -69,9 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
             header("Location: ../presentacion/index.php");
             exit();
     }
+
 } else {
     // Si no se recibe una solicitud POST válida, redirigir al formulario
-    header("Location: valores.php");
+    header("Location: ../presentacion/valores.php");
     exit();
 }
 ?>
