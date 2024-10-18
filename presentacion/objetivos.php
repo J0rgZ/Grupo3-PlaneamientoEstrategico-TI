@@ -1,3 +1,30 @@
+<?php
+session_start();
+
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+// Generar un token CSRF
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Incluir el archivo de conexión a MongoDB
+require '../datos/conexion.php';
+
+// Recuperar datos de la base de datos
+$collection = $db->objetivos;
+$user_id = $_SESSION['user_id'];
+$documento = $collection->findOne(['user_id' => $user_id]);
+
+$mision = $documento['mision'] ?? '';
+$objetivos_generales = $documento['objetivos_generales'] ?? ['', '', ''];
+$objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 3 => ['', '']];
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -186,32 +213,36 @@
                 <h2>Definición de Objetivos</h2>
                 <p>A continuación reflexione sobre la misión, visión y valores definidos y establezca los objetivos estratégicos y específicos de su empresa. Le proponemos que comience con definir 3 objetivos estratégicos y dos específicos para cada uno de ellos.</p>
 
-                <table class="objetivos-table">
-                    <tr>
-                        <th>MISIÓN</th>
-                        <th>OBJETIVOS GENERALES O ESTRATÉGICOS</th>
-                        <th>OBJETIVOS ESPECÍFICOS</th>
-                    </tr>
-                    <tr>
-                        <td rowspan="3"><textarea></textarea></td>
-                        <td><textarea></textarea></td>
-                        <td>
-                            <textarea></textarea>
-                            <textarea></textarea>
-                        </td>
-                    </tr>
-                    <?php
-                    for ($i = 0; $i < 2; $i++) {
-                        echo "<tr>
-                                <td><textarea></textarea></td>
-                                <td>
-                                    <textarea></textarea>
-                                    <textarea></textarea>
-                                </td>
-                              </tr>";
-                    }
-                    ?>
-                </table>
+                <form action="../logica/logicaObjetivos.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <table class="objetivos-table">
+                        <tr>
+                            <th>MISIÓN</th>
+                            <th>OBJETIVOS GENERALES O ESTRATÉGICOS</th>
+                            <th>OBJETIVOS ESPECÍFICOS</th>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><textarea name="mision" required><?php echo htmlspecialchars($mision); ?></textarea></td>
+                            <td><textarea name="objetivo_general_1" required><?php echo htmlspecialchars($objetivos_generales[0]); ?></textarea></td>
+                            <td>
+                                <textarea name="objetivo_especifico_1_1" required><?php echo htmlspecialchars($objetivos_especificos[2][0]); ?></textarea>
+                                <textarea name="objetivo_especifico_1_2" required><?php echo htmlspecialchars($objetivos_especificos[2][1]); ?></textarea>
+                            </td>
+                        </tr>
+                        <?php
+                        for ($i = 1; $i < 3; $i++) {
+                            echo "<tr>
+                                    <td><textarea name='objetivo_general_" . ($i + 1) . "' required>" . htmlspecialchars($objetivos_generales[$i]) . "</textarea></td>
+                                    <td>
+                                        <textarea name='objetivo_especifico_" . ($i + 1) . "_1' required>" . htmlspecialchars($objetivos_especificos[$i + 2][0]) . "</textarea>
+                                        <textarea name='objetivo_especifico_" . ($i + 1) . "_2' required>" . htmlspecialchars($objetivos_especificos[$i + 2][1]) . "</textarea>
+                                    </td>
+                                  </tr>";
+                        }
+                        ?>
+                    </table>
+                    <button type="submit" class="nav-button">Guardar los Cambios</button>
+                </form>
             </div>
         </main>
         
