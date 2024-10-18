@@ -1,3 +1,41 @@
+<?php
+session_start();
+
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+// Incluir el archivo de conexión a MongoDB
+require '../datos/conexion.php';
+
+// Generar un token CSRF si no existe
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Inicializar la variable de misión
+$mision_usuario = "";
+
+// Recuperar la misión existente del usuario desde MongoDB
+try {
+    $collection = $db->mision;
+
+    // Buscar un documento donde 'user_id' coincida con el ID del usuario logueado
+    $documento = $collection->findOne(['user_id' => $_SESSION['user_id']]);
+
+    if ($documento && isset($documento['mision'])) {
+        // Asignar la misión existente a la variable
+        $mision_usuario = $documento['mision'];
+    }
+} catch (Exception $e) {
+    // Manejar errores de conexión o consulta
+    error_log("Error al recuperar misión: " . $e->getMessage());
+    // Establecer un mensaje de error para el usuario
+    $_SESSION['error_message'] = "Ocurrió un error al recuperar tu misión. Por favor, intenta nuevamente.";
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -17,57 +55,56 @@
         /* Contenedor para la sección de Misión */
         .mision-container {
             width: 80%;
-            max-width: 1200px; /* Limita el ancho máximo para pantallas grandes */
-            margin: 20px auto; /* Espaciado arriba y abajo */
+            max-width: 1200px;
+            margin: 20px auto;
             text-align: left;
             padding: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             background-color: #fff;
-            border-radius: 8px; /* Esquinas redondeadas */
+            border-radius: 8px;
         }
 
         .mision-header {
             background-color: #0099cc;
             color: white;
             padding: 15px;
-            font-size: 2em; /* Aumenta el tamaño del encabezado */
+            font-size: 2em;
             text-align: center;
             margin-bottom: 20px;
             letter-spacing: 1px;
-            border-radius: 8px; /* Esquinas redondeadas */
+            border-radius: 8px;
         }
 
         .mision-text {
-            font-size: 1.2em; /* Tamaño de fuente más grande */
+            font-size: 1.2em;
             color: #333;
             line-height: 1.6;
             margin-bottom: 20px;
         }
 
         ul {
-            margin: 20px 0; /* Espaciado para la lista */
-            padding-left: 20px; /* Sangría para la lista */
-            list-style-type: disc; /* Tipo de lista */
+            margin: 20px 0;
+            padding-left: 20px;
+            list-style-type: disc;
         }
 
         textarea {
-            width: 100%; /* Usar el ancho completo del contenedor */
+            width: 100%;
             height: 100px;
             margin: 20px auto;
             padding: 10px;
-            font-size: 1em; /* Tamaño de fuente más pequeño para el textarea */
+            font-size: 1em;
             border-radius: 8px;
             border: 1px solid #ddd;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            resize: none; /* Evita que el textarea se redimensione */
+            resize: none;
         }
 
-        /* Botones de navegación en la parte inferior */
         .navigation-buttons {
             display: flex;
             justify-content: space-between;
             width: 80%;
-            max-width: 600px; /* Limita el ancho máximo de los botones */
+            max-width: 600px;
             margin: 20px auto;
         }
 
@@ -78,10 +115,10 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1em; /* Tamaño de fuente más pequeño para los botones */
+            font-size: 1em;
             transition: 0.3s;
-            flex: 1; /* Los botones ocuparán el mismo espacio */
-            margin: 0 5px; /* Espaciado entre botones */
+            flex: 1;
+            margin: 0 5px;
         }
 
         button.nav-button:hover, button.save-button:hover {
@@ -89,19 +126,17 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
-    </style>
-    <script>
-        function guardarMision() {
-            const mision = document.getElementById('mision-textarea').value;
-            if (mision) {
-                // Simulando guardar la misión (esto podría ser una llamada a la API o almacenamiento local)
-                localStorage.setItem('mision', mision);
-                alert('La misión ha sido guardada con éxito.');
-            } else {
-                alert('Por favor, escriba la misión antes de guardar.');
-            }
+
+        .success-message {
+            color: green;
+            margin-bottom: 10px;
         }
-    </script>
+
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
 
@@ -120,19 +155,34 @@
             Se expresa a través de una oración que define el propósito fundamental de su empresa.
         </p>
 
-        <div class="mision-examples">
-            <strong>EJEMPLOS</strong><br>
-            <strong>Empresa de servicios</strong>
-            <p>La gestión de servicios que contribuyen a la calidad de vida de las personas y generan valor para los grupos de interés.</p>
-            <strong>Empresa productora de café</strong>
-            <p>Gracias a nuestro entusiasmo, trabajo en equipo y valores, queremos deleitar a todos aquellos que, en el mundo, aman la calidad de vida a través del mejor café.</p>
-            <strong>Agencia de certificación</strong>
-            <p>Dar a nuestros clientes alivio económico a través de la gestión de la Calidad, la Seguridad y la Responsabilidad Social.</p>
-        </div>
+        <!-- Mostrar mensajes de éxito o error -->
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="success-message">
+                <?php
+                    echo htmlspecialchars($_SESSION['success_message']);
+                    unset($_SESSION['success_message']);
+                ?>
+            </div>
+        <?php endif; ?>
 
-        <!-- Área de entrada de misión -->
-        <textarea id="mision-textarea" placeholder="En este apartado describa la Misión de su empresa."></textarea>
-        <button class="save-button" onclick="guardarMision()">Guardar Misión</button>
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div class="error-message">
+                <?php
+                    echo htmlspecialchars($_SESSION['error_message']);
+                    unset($_SESSION['error_message']);
+                ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- Formulario que envía datos a logicaMision.php -->
+        <form method="POST" action="../logica/logicaMision.php">
+            <!-- Token CSRF oculto -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+            <!-- Área de texto para ingresar la misión, prellenada con la misión existente -->
+            <textarea name="mision" id="mision-textarea" placeholder="En este apartado describa la Misión de su empresa." required><?php echo htmlspecialchars($mision_usuario); ?></textarea>
+            <button class="save-button" type="submit">Guardar Misión</button>
+        </form>
     </div>
 
     <!-- Botones de navegación en la parte inferior -->
