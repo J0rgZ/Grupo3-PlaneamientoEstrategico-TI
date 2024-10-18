@@ -38,6 +38,7 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autodiagnóstico de la Cadena de Valor Interna</title>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -226,18 +227,29 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
                 "El servicio al cliente que prestamos es una de nuestras principales ventajas competitivas respecto a nuestros competidores."
             ];
 
+            echo "Preguntas count: " . count($preguntas) . "<br>";
+            echo "Valores count: " . count($valores) . "<br>";
+
+
             for ($i = 0; $i < count($preguntas); $i++) {
                 echo "<tr>";
                 echo "<td>" . ($i + 1) . "</td>";
-                echo "<td>" . $preguntas[$i] . "</td>";
+                echo "<td>" . htmlspecialchars($preguntas[$i]) . "</td>";
                 echo "<td>";
+            
+                $valorSeleccionado = isset($valores[$i]) ? $valores[$i] : -1;
+            
                 for ($j = 0; $j < 5; $j++) {
-                    $checked = $valores[$i] == $j ? 'checked' : '';
-                    echo "<input type='radio' name='valor_$i' value='$j' $checked onchange=\"guardarValor('valoracion', $i, this.value)\"> $j ";
+                    $checked = ($valorSeleccionado == $j) ? 'checked' : '';
+                    // Asociamos bien el name e identificador
+                    echo "<input type='radio' id='valor_{$i}_{$j}' name='valor_$i' value='$j' $checked 
+                          onchange=\"guardarValor('valoracion', $i, this.value)\"> $j ";
                 }
+            
                 echo "</td>";
                 echo "</tr>";
             }
+            
             ?>
         </table>
     </form>
