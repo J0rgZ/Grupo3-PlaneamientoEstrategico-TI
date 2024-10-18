@@ -16,8 +16,14 @@ require '../datos/conexion.php'; // Ajusta la ruta si es necesario
 // Seleccionar la colección de "valores" en la base de datos, filtrando por el user_id
 $collection = $db->valores;
 
+// Seleccionar la colección de "mision" en la base de datos, filtrando por el user_id
+$collection_mision = $db->mision;
+
 // Obtener los valores del usuario que está autenticado
 $valores_usuario = $collection->findOne(['user_id' => $user_id]);
+
+// Obtener la misión del usuario que está autenticado
+$mision_usuario = $collection_mision->findOne(['user_id' => $user_id]);
 
 // Aquí empezamos a construir el HTML
 ?>
@@ -113,7 +119,7 @@ $valores_usuario = $collection->findOne(['user_id' => $user_id]);
         <div class="form-section">
             <h2>Misión</h2>
             <div class="input-section">
-                <?php echo htmlspecialchars($valores_usuario['mision'] ?? '[Misión]'); ?>
+            <?php echo htmlspecialchars($mision_usuario['mision'] ?? '[Misión no ingresada]'); ?>
             </div>
         </div>
 

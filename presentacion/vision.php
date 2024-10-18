@@ -1,3 +1,35 @@
+<?php
+session_start();
+
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+// Incluir el archivo de conexión a MongoDB
+require '../datos/conexion.php';
+
+// Inicializar la variable de visión
+$vision_usuario = "";
+
+// Recuperar la visión existente del usuario desde MongoDB
+try {
+    $collection = $db->vision;
+
+    // Buscar un documento donde 'user_id' coincida con el ID del usuario logueado
+    $documento = $collection->findOne(['user_id' => $_SESSION['user_id']]);
+
+    if ($documento && isset($documento['vision'])) {
+        // Asignar la visión existente a la variable
+        $vision_usuario = $documento['vision'];
+    }
+} catch (Exception $e) {
+    error_log("Error al recuperar visión: " . $e->getMessage());
+    $_SESSION['error_message'] = "Ocurrió un error al recuperar tu visión. Por favor, intenta nuevamente.";
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -123,6 +155,21 @@
             padding: 10px;
             margin-top: 20px;
         }
+        .success-message, .error-message {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid;
+        }
+        .success-message {
+            border-color: #4caf50;
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error-message {
+            border-color: #f44336;
+            background-color: #f2dede;
+            color: #a94442;
+        }
     </style>
 </head>
 <body>
@@ -158,8 +205,31 @@
             
             <div class="vision-input">
                 <span class="pencil-icon">✎</span>
-                <textarea rows="4" cols="50"></textarea>
+                <form method="POST" action="../logica/logicaVision.php">
+                    <textarea name="vision" rows="4" cols="50" required><?php echo htmlspecialchars($vision_usuario); ?></textarea>
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                    <button type="submit" class="nav-button">Guardar Visión</button>
+                </form>
             </div>
+
+            <!-- Mostrar mensajes de éxito o error -->
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <div class="success-message">
+                    <?php
+                        echo htmlspecialchars($_SESSION['success_message']);
+                        unset($_SESSION['success_message']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error_message'])): ?>
+                <div class="error-message">
+                    <?php
+                        echo htmlspecialchars($_SESSION['error_message']);
+                        unset($_SESSION['error_message']);
+                    ?>
+                </div>
+            <?php endif; ?>
             
             <div class="diagram">
                 <p><strong>Relación entre Misión y Visión</strong></p>
