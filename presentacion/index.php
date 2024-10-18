@@ -56,6 +56,10 @@ if (!isset($_SESSION['user_id'])) {
         <button class="nav-button" onclick="window.location.href='vision.php'">2. VISIÓN</button>
         <button class="nav-button" onclick="window.location.href='valores.php'">3. VALORES</button>
         <button class="nav-button" onclick="window.location.href='objetivos.php'">4. OBJETIVOS</button>
+        <button class="nav-button" onclick="window.location.href='analisis.php'">5. ANÁLISIS INTERNO Y EXTERNO </button>
+        <button class="nav-button" onclick="window.location.href='cadena.php'">6. Cadena de Valor</button>
+        <button class="nav-button" onclick="window.location.href='matriz.php'">3. Matriz </button>
+        <button class="nav-button" onclick="window.location.href='resumen.php'">4. RESUMEN</button>s
     </div>
     
     <button class="nav-button" onclick="window.location.href='resumen.php'">RESUMEN DEL PLAN EJECUTIVO</button>
