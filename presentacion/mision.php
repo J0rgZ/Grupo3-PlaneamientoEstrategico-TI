@@ -137,7 +137,7 @@
 
     <!-- Botones de navegación en la parte inferior -->
     <div class="navigation-buttons">
-        <button class="nav-button" onclick="window.location.href='indice.php'">ÍNDICE</button>
+        <button class="nav-button" onclick="window.location.href='index.php'">ÍNDICE</button>
         <button class="nav-button" onclick="window.location.href='vision.php'">2. VISIÓN</button>
     </div>
 
