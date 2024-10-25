@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Iniciar sesión y redirigir a main.php
             $_SESSION['user_id'] = $usuario['_id'];
             $_SESSION['username'] = $usuario['username']; // Almacenar el nombre de usuario si es necesario
-            header('Location: index.php');
+            header('Location: inicio.php');
             exit();
         } else {
             // Credenciales incorrectas
