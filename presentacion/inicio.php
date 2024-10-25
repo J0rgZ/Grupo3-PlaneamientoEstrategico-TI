@@ -25,12 +25,21 @@ if (isset($_POST['agregar'])) {
             'nombre' => $nuevo_plan, 
             'fecha_creacion' => new MongoDB\BSON\UTCDateTime(), 
             'fecha_modificacion' => new MongoDB\BSON\UTCDateTime(), 
-            'estado' => 'No iniciado' // Estado inicial
+            'estado' => 'No iniciado',
+            'mision' => '',
+            'vision' => '',
+            'valores' => '',
+            'objetivos_generales' => [],
+            'preguntas' => [],
+            'fortalezas' => [],
+            'debilidades' => []
         ]);
         header("Location: inicio.php");
         exit();
     }
 }
+
+
 
 if (isset($_POST['eliminar'])) {
     $id_plan = $_POST['id_plan'];
