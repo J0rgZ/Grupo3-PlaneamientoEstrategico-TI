@@ -95,12 +95,11 @@ if (isset($_GET['plan_id'])) {
 
             <!-- Área de texto para ingresar valores, prellenada con los valores existentes -->
             <textarea name="valores" placeholder="Ingrese los valores de su empresa aquí..." required><?php echo htmlspecialchars($valores_usuario); ?></textarea>
-            
-            <div class="navigation-buttons">
-                <button type="submit" name="action" value="index" class="nav-button">ÍNDICE</button>
-                <button type="submit" name="action" value="vision" class="nav-button">2. VISIÓN</button>
-                <button type="submit" name="action" value="resumen" class="nav-button">4. RESUMEN</button>
-            </div>
+                <div class="navigation-buttons">
+                    <button type="submit" name="action" value="index_<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">ÍNDICE</button>
+                    <button type="submit" name="action" value="vision_<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">2. VISIÓN</button>
+                    <button type="submit" name="action" value="resumen_<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">4. RESUMEN</button>
+                </div>
         </form>
 
     </div>
