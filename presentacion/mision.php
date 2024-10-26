@@ -17,23 +17,53 @@ if (empty($_SESSION['csrf_token'])) {
 
 // Inicializar la variable de misión
 $mision_usuario = "";
+$plan_id = $_GET['plan_id'] ?? '';
 
-// Recuperar la misión existente del usuario desde MongoDB
+// Recuperar la misión existente del plan desde MongoDB
 try {
-    $collection = $db->mision;
+    $collection = $db->planes; // Cambiar a la colección 'planes'
 
-    // Buscar un documento donde 'user_id' coincida con el ID del usuario logueado
-    $documento = $collection->findOne(['user_id' => $_SESSION['user_id']]);
+    // Buscar el documento del plan donde 'user_id' y 'plan_id' coincidan
+    $documento = $collection->findOne(['_id' => new MongoDB\BSON\ObjectId($plan_id), 'user_id' => $_SESSION['user_id']]);
 
     if ($documento && isset($documento['mision'])) {
         // Asignar la misión existente a la variable
         $mision_usuario = $documento['mision'];
     }
 } catch (Exception $e) {
-    // Manejar errores de conexión o consulta
     error_log("Error al recuperar misión: " . $e->getMessage());
-    // Establecer un mensaje de error para el usuario
-    $_SESSION['error_message'] = "Ocurrió un error al recuperar tu misión. Por favor, intenta nuevamente.";
+    $_SESSION['error_message'] = "Error: " . $e->getMessage(); // Muestra el mensaje de error
+}
+
+// Manejar el envío del formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nueva_mision = $_POST['mision'] ?? '';
+
+    if ($nueva_mision) {
+        try {
+            // Actualizar la misión en el plan
+            $result = $collection->updateOne(
+                ['_id' => new MongoDB\BSON\ObjectId($plan_id)],
+                ['$set' => [
+                    'mision' => $nueva_mision,
+                    'fecha_modificacion' => new MongoDB\BSON\UTCDateTime()
+                ]]
+            );
+
+            if ($result->getModifiedCount() > 0) {
+                $_SESSION['success_message'] = "Misión actualizada exitosamente.";
+            } else {
+                $_SESSION['error_message'] = "No se realizaron cambios en la misión.";
+            }
+        } catch (Exception $e) {
+            error_log("Error al actualizar misión: " . $e->getMessage());
+            $_SESSION['error_message'] = "Ocurrió un error al actualizar la misión. Por favor, intenta nuevamente.";
+        }
+
+        // Redirigir a la misma página para evitar reenvío del formulario
+        header("Location: mision.php?plan_id=$plan_id");
+        exit();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -175,7 +205,7 @@ try {
         <?php endif; ?>
 
         <!-- Formulario que envía datos a logicaMision.php -->
-        <form method="POST" action="../logica/logicaMision.php">
+        <form method="POST" action="">
             <!-- Token CSRF oculto -->
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
