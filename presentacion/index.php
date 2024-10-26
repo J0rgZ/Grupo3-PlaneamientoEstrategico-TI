@@ -6,6 +6,9 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
+
+// Obtener el id_plan si está presente en la URL
+$id_plan = $_GET['plan_id'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -92,28 +95,23 @@ if (!isset($_SESSION['user_id'])) {
             que han de llevarse a cabo para alinear los recursos y potencialidades con el fin de conseguir el estado deseado, es decir, la adaptación y adquisición de competitividad empresarial.
         </p>
         
-        <p>
-            Esta aplicación le ayudará a reflexionar sobre la estrategia que debe llevar a cabo. Visualizará dónde quiere estar, dónde está actualmente y qué camino tendrá que trazar
-            para llevarle a otro estado.
-        </p>
-        
         <h2>INFORMACIÓN</h2>
 
         <div class="button-grid">
-            <button class="nav-button" onclick="window.location.href='mision.php'">1. MISIÓN</button>
-            <button class="nav-button" onclick="window.location.href='vision.php'">2. VISIÓN</button>
-            <button class="nav-button" onclick="window.location.href='valores.php'">3. VALORES</button>
-            <button class="nav-button" onclick="window.location.href='objetivos.php'">4. OBJETIVOS</button>
-            <button class="nav-button" onclick="window.location.href='analisis.php'">5. ANÁLISIS INTERNO Y EXTERNO</button>
-            <button class="nav-button" onclick="window.location.href='cadena.php'">6. CADENA DE VALOR</button>
-            <button class="nav-button" onclick="window.location.href='matriz.php'">7. MATRIZ PARTICIPACIÓN</button>
-            <button class="nav-button" onclick="window.location.href='fuerzas.php'">8. LAS 5 FUERZAS DE PORTER</button>
-            <button class="nav-button" onclick="window.location.href='pest.php'">9. PEST</button>
-            <button class="nav-button" onclick="window.location.href='estrategia.php'">10. IDENTIFICACIÓN ESTRATEGIA</button>
-            <button class="nav-button" onclick="window.location.href='came.php'">11. MATRIZ CAME</button>
+            <button class="nav-button" onclick="window.location.href='mision.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">1. MISIÓN</button>
+            <button class="nav-button" onclick="window.location.href='vision.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">2. VISIÓN</button>
+            <button class="nav-button" onclick="window.location.href='valores.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">3. VALORES</button>
+            <button class="nav-button" onclick="window.location.href='objetivos.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">4. OBJETIVOS</button>
+            <button class="nav-button" onclick="window.location.href='analisis.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">5. ANÁLISIS INTERNO Y EXTERNO</button>
+            <button class="nav-button" onclick="window.location.href='cadena.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">6. CADENA DE VALOR</button>
+            <button class="nav-button" onclick="window.location.href='matriz.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">7. MATRIZ PARTICIPACIÓN</button>
+            <button class="nav-button" onclick="window.location.href='fuerzas.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">8. LAS 5 FUERZAS DE PORTER</button>
+            <button class="nav-button" onclick="window.location.href='pest.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">9. PEST</button>
+            <button class="nav-button" onclick="window.location.href='estrategia.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">10. IDENTIFICACIÓN ESTRATEGIA</button>
+            <button class="nav-button" onclick="window.location.href='came.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">11. MATRIZ CAME</button>
         </div>
 
-        <button class="long-button" style="margin-top: 30px;" onclick="window.location.href='resumen.php'">RESUMEN DEL PLAN EJECUTIVO</button>
+        <button class="long-button" style="margin-top: 30px;" onclick="window.location.href='resumen.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">RESUMEN DEL PLAN EJECUTIVO</button>
     </div>
 
     <footer>
