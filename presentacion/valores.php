@@ -1,6 +1,4 @@
 <?php
-// valores.php
-
 session_start();
 
 // Verificar si el usuario está logueado
@@ -20,24 +18,32 @@ if (empty($_SESSION['csrf_token'])) {
 // Inicializar la variable de valores
 $valores_usuario = "";
 
-// Recuperar los valores existentes del usuario desde MongoDB
-try {
-    $collection = $db->valores;
+// Verificar si se ha recibido 'plan_id' desde la solicitud (usando $_GET en lugar de $_POST)
+if (isset($_GET['plan_id'])) {
+    $plan_id = $_GET['plan_id'];
 
-    // Buscar un documento donde 'user_id' coincida con el ID del usuario logueado
-    $documento = $collection->findOne(['user_id' => $_SESSION['user_id']]);
+    // Recuperar los valores existentes del usuario y plan desde MongoDB
+    try {
+        $collection = $db->valores;
 
-    if ($documento && isset($documento['valores'])) {
-        // Asignar los valores existentes a la variable
-        $valores_usuario = $documento['valores'];
+        // Buscar un documento donde 'user_id' y 'plan_id' coincidan
+        $documento = $collection->findOne(['user_id' => $_SESSION['user_id'], 'plan_id' => $plan_id]);
+
+        if ($documento && isset($documento['valores'])) {
+            // Asignar los valores existentes a la variable
+            $valores_usuario = $documento['valores'];
+        }
+    } catch (Exception $e) {
+        // Manejar errores de conexión o consulta
+        error_log("Error al recuperar valores: " . $e->getMessage());
+        // Establecer un mensaje de error para el usuario
+        $_SESSION['error_message'] = "Ocurrió un error al recuperar tus valores. Por favor, intenta nuevamente.";
     }
-} catch (Exception $e) {
-    // Manejar errores de conexión o consulta
-    error_log("Error al recuperar valores: " . $e->getMessage());
-    // Establecer un mensaje de error para el usuario
-    $_SESSION['error_message'] = "Ocurrió un error al recuperar tus valores. Por favor, intenta nuevamente.";
+} else {
+    $_SESSION['error_message'] = "No se proporcionó el plan ID.";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -84,6 +90,9 @@ try {
             <!-- Token CSRF oculto -->
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
+            <!-- plan_id oculto -->
+            <input type="hidden" name="plan_id" value="<?php echo htmlspecialchars($plan_id); ?>">
+
             <!-- Área de texto para ingresar valores, prellenada con los valores existentes -->
             <textarea name="valores" placeholder="Ingrese los valores de su empresa aquí..." required><?php echo htmlspecialchars($valores_usuario); ?></textarea>
             
@@ -93,6 +102,7 @@ try {
                 <button type="submit" name="action" value="resumen" class="nav-button">4. RESUMEN</button>
             </div>
         </form>
+
     </div>
 </body>
 </html>

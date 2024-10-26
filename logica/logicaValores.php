@@ -4,7 +4,7 @@
 session_start();
 
 // Incluir el archivo de conexión a MongoDB
-require '../datos/conexion.php'; // Asegúrate de que la ruta es correcta
+require '../datos/conexion.php';
 
 // Verificar si el usuario está logueado
 if (!isset($_SESSION['user_id'])) {
@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Verificar si se ha recibido una solicitud POST con los datos necesarios
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($_POST['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($_POST['plan_id']) && isset($_POST['action'])) {
 
     // Verificar el token CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -24,39 +24,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
 
     // Capturar y limpiar los datos del formulario
     $valores = trim($_POST['valores']);
+    $plan_id = $_POST['plan_id'];  // ID del plan
     $accion = $_POST['action'];
 
     // Validar que el campo 'valores' no esté vacío
     if ($valores !== "") {
         try {
             // Seleccionar la colección de MongoDB
-            $collection = $db->valores;
+            $collection = $db->planes;
 
-            // Recuperar el ID del usuario desde la sesión
-            $user_id = $_SESSION['user_id'];
-
-            // Definir el filtro para buscar el documento del usuario
-            $filtro = ['user_id' => $user_id];
+            // Crear el filtro para encontrar el documento específico por su ID
+            $filtro = ['_id' => new MongoDB\BSON\ObjectId($plan_id)];
 
             // Definir los datos a actualizar
             $datos_actualizados = [
                 '$set' => [
                     'valores' => $valores,
-                    'fecha' => new MongoDB\BSON\UTCDateTime()
+                    'fecha_modificacion' => new MongoDB\BSON\UTCDateTime()
                 ]
             ];
 
-            // Definir opciones, como upsert (insertar si no existe)
-            $opciones = ['upsert' => true];
-
-            // Realizar la actualización (o inserción si no existe)
-            $resultado = $collection->updateOne($filtro, $datos_actualizados, $opciones);
+            // Realizar la actualización
+            $resultado = $collection->updateOne($filtro, $datos_actualizados);
 
             // Verificar si la operación fue exitosa
-            if ($resultado->getModifiedCount() > 0 || $resultado->getUpsertedCount() > 0) {
+            if ($resultado->getModifiedCount() > 0) {
                 $_SESSION['success_message'] = "Valores guardados exitosamente.";
             } else {
-                $_SESSION['error_message'] = "No se realizaron cambios en los valores.";
+                $_SESSION['error_message'] = "No se realizaron cambios en los valores o el documento no existe.";
             }
 
         } catch (Exception $e) {
@@ -91,4 +86,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
     header("Location: ../presentacion/valores.php");
     exit();
 }
-?>
