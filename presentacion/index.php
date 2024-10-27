@@ -1,11 +1,11 @@
 <?php
 
 session_start(); // Iniciar la sesión
-require '../presentacion/estilos1.css';
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
+    require '../datos/conexion.php';
     exit();
 }
 
