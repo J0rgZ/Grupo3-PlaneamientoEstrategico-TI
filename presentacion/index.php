@@ -1,5 +1,5 @@
 <?php
-require '../presentacion/index.php';
+
 session_start(); // Iniciar la sesión
 
 // Verificar si el usuario está autenticado
