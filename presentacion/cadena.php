@@ -34,103 +34,155 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autodiagnóstico de la Cadena de Valor Interna</title>
-    
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
+            background-color: #121212;
+            color: #e0e0e0;
             padding: 20px;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 0.9em;
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-            background-color: #fff;
-        }
-
-        table th, table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-
-        table th {
-            background-color: #007BFF;
-            color: white;
-            text-transform: uppercase;
-        }
-
-        table td {
-            color: #333;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f8f8f8;
-        }
-
-        .form-container {
+        .header {
             display: flex;
-            justify-content: center;
-            margin: 20px 0;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #00bcd4;
+            padding-bottom: 10px;
         }
 
-        button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
+        .header h1 {
+            font-size: 28px;
+            color: #00bcd4;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .card {
+            background-color: #1e1e1e;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        button:hover {
-            background-color: #218838;
-        }
-
-        #resultado {
+        .card-header {
+            background-color: #292b2c;
+            color: #fff;
             font-weight: bold;
-            text-align: center;
-            margin-top: 20px;
+            font-size: 18px;
         }
 
-        #potencial {
-            font-weight: bold;
-            color: #007BFF;
-            text-align: center;
-            margin-top: 20px;
+        .table {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        #error {
-            color: red;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        @media screen and (max-width: 768px) {
-            table {
-                font-size: 0.8em;
-            }
-        }
-        input[type="text"] {
+        .table th,
+        .table td {
+            vertical-align: middle;
             border: none;
-            width: 100%;
-            box-sizing: border-box; /* Esto asegura que los márgenes y padding no rompan el diseño */
+            color: #fff;
         }
+
+        .table th {
+            background-color: #00bcd4;
+            position: sticky;
+            top: 0;
+        }
+
+        .table tbody tr:hover {
+            background-color: #292b2c;
+        }
+
+        .btn-primary {
+            background-color: #00bcd4;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0288d1;
+        }
+
+        .potencial-container {
+    background-color: #1e1e1e; /* Fondo oscuro */
+    color: #00bcd4; /* Color de texto turquesa */
+    border: 2px solid #00bcd4; /* Borde turquesa */
+    border-radius: 10px; /* Bordes redondeados */
+    padding: 15px; /* Espaciado interno */
+    margin: 20px 0; /* Espaciado externo */
+    font-size: 20px; /* Tamaño de fuente */
+    text-align: center; /* Alinear texto al centro */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Sombra del cuadro */
+}
+
+.porcentaje {
+    font-weight: bold; /* Negrita para el porcentaje */
+    font-size: 24px; /* Tamaño de fuente del porcentaje */
+}
+.section-title {
+    font-size: 24px; /* Tamaño de fuente del título */
+    color: #00bcd4; /* Color turquesa */
+    margin: 20px 0 10px; /* Espaciado del título */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Sombra para el texto */
+}
+
+.styled-table {
+    width: 100%; /* Ancho completo */
+    border-collapse: collapse; /* Colapsar bordes */
+    margin-bottom: 30px; /* Espaciado entre tablas */
+}
+
+.styled-table td {
+    padding: 10px; /* Espaciado interno de celdas */
+    border: 1px solid #292b2c; /* Borde de celdas */
+    color: #ffffff; /* Color de texto */
+}
+
+.styled-table tr:nth-child(even) {
+    background-color: #1e1e1e; /* Fondo alterno para filas */
+}
+
+.styled-table tr:hover {
+    background-color: #292b2c; /* Fondo al pasar el mouse */
+}
+
+.label {
+    font-weight: bold; /* Negrita para etiquetas */
+}
+
+.input-field {
+    width: 100%; /* Ancho completo del campo de texto */
+    padding: 8px; /* Espaciado interno del campo */
+    border: 1px solid #00bcd4; /* Borde turquesa */
+    border-radius: 5px; /* Bordes redondeados */
+    background-color: #292b2c; /* Fondo del campo */
+    color: #ffffff; /* Color de texto en el campo */
+}
+
+.input-field:focus {
+    border-color: #00bcd4; /* Borde turquesa al enfocar */
+    outline: none; /* Quitar el borde por defecto */
+    background-color: #343a40; /* Fondo más claro al enfocar */
+}
+
     </style>
     <script>
         // Función para guardar automáticamente los valores y recalcular el porcentaje
@@ -177,28 +229,39 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
     </script>
 </head>
 <body>
-    <h1>Diagnóstico de la Cadena de Valor Interna</h1>
-    <form method="post">
-        <button type="submit" name="logout">Cerrar sesión</button>
-    </form>
-    <p>
-        A continuación marque con una X para valorar su empresa en función de cada una de las afirmaciones, de tal forma que:
-        <br>0 = En total en desacuerdo,
-        <br>1 = No está de acuerdo,
-        <br>2 = Está de acuerdo,
-        <br>3 = Está bastante de acuerdo,
-        <br>4 = En total acuerdo.
-    </p>
 
-    <!-- Formulario para las valoraciones -->
-    <form id="diagnosticoForm" method="post">
-        <table>
-            <tr>
-                <th>#</th>
-                <th>Diagnóstico</th>
-                <th>Valoración</th>
-            </tr>
-            <?php
+
+    <div class="container mt-4">
+        <!-- Encabezado con botones de retroceso y cierre de sesión -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <!-- Botón para regresar -->
+            <a href="index.php" class="btn btn-primary">
+                ← Regresar
+            </a>
+
+            <!-- Título centrado -->
+            <h2 class="text-center flex-grow-1" style="margin: 0;">
+                Diagnóstico de la Cadena de Valor Interna
+            </h2>
+
+            <!-- Botón de Cerrar Sesión -->
+            <form method="post">
+            <button type="submit" name="logout" class="btn btn-danger">Cerrar sesión</button>
+        </form>
+    </div>
+
+
+    <form id="diagnosticoForm">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Diagnóstico</th>
+                    <th>Valoración</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
             $preguntas = [
                 "La empresa tiene una política sistematizada de cero defectos en la producción de productos/servicios.",
                 "La empresa amplía los medios productivos tecnológicamente más avanzados de su sector.",
@@ -227,27 +290,29 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
                 "El servicio al cliente que prestamos es una de nuestras principales ventajas competitivas respecto a nuestros competidores."
             ];
 
-            echo "Preguntas count: " . count($preguntas) . "<br>";
-            echo "Valores count: " . count($valores) . "<br>";
 
+            $opciones = [
+                "0 = En total desacuerdo",
+                "1 = No está de acuerdo",
+                "2 = Está de acuerdo",
+                "3 = Bastante de acuerdo",
+                "4 = En total acuerdo"
+            ];
 
-            for ($i = 0; $i < count($preguntas); $i++) {
-                echo "<tr>";
-                echo "<td>" . ($i + 1) . "</td>";
-                echo "<td>" . htmlspecialchars($preguntas[$i]) . "</td>";
-                echo "<td>";
-            
-                $valorSeleccionado = isset($valores[$i]) ? $valores[$i] : -1;
-            
-                for ($j = 0; $j < 5; $j++) {
-                    $checked = ($valorSeleccionado == $j) ? 'checked' : '';
-                    // Asociamos bien el name e identificador
-                    echo "<input type='radio' id='valor_{$i}_{$j}' name='valor_$i' value='$j' $checked 
-                          onchange=\"guardarValor('valoracion', $i, this.value)\"> $j ";
+            foreach ($preguntas as $i => $pregunta) {
+                echo "<tr><td>" . ($i + 1) . "</td>";
+                echo "<td>" . htmlspecialchars($pregunta) . "</td><td>";
+
+                $valorSeleccionado = $valores[$i] ?? -1;
+                echo "<select name='valor_$i' onchange='guardarValor(\"valoracion\", $i, this.value)' class='form-select'>";
+                
+                echo "<option value='' disabled selected>Seleccione una opción</option>"; // Opción por defecto
+                foreach ($opciones as $j => $opcion) {
+                    $selected = ($valorSeleccionado == $j) ? 'selected' : '';
+                    echo "<option value='$j' $selected>$opcion</option>";
                 }
-            
-                echo "</td>";
-                echo "</tr>";
+                
+                echo "</select></td></tr>";
             }
             
             ?>
@@ -255,53 +320,41 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
     </form>
 
     <!-- Mostrar el porcentaje de mejora calculado -->
-    <div id="potencial">
-        Potencial de Mejora de la Cadena de Valor Interna: <?php echo $porcentaje_mejora; ?>%
+    <div id="potencial" class="potencial-container">
+    Potencial de Mejora de la Cadena de Valor Interna: <span class="porcentaje"><?php echo $porcentaje_mejora; ?>%</span>
+</div>
+
+
+<h2 class="section-title">Fortalezas</h2>
+<table class="styled-table">
+    <?php for ($i = 0; $i < 4; $i++): ?>
+        <tr>
+            <td class="label">F<?php echo $i + 1; ?>:</td>
+            <td>
+                <input type="text" name="fortaleza_<?php echo $i; ?>" 
+                       value="<?php echo htmlspecialchars($fortalezas[$i]); ?>" 
+                       oninput="guardarValor('fortaleza', <?php echo $i; ?>, this.value)" 
+                       class="input-field">
+            </td>
+        </tr>
+    <?php endfor; ?>
+</table>
+
+<h2 class="section-title">Debilidades</h2>
+<table class="styled-table">
+    <?php for ($i = 0; $i < 4; $i++): ?>
+        <tr>
+            <td class="label">D<?php echo $i + 1; ?>:</td>
+            <td>
+                <input type="text" name="debilidad_<?php echo $i; ?>" 
+                       value="<?php echo htmlspecialchars($debilidades[$i]); ?>" 
+                       oninput="guardarValor('debilidad', <?php echo $i; ?>, this.value)" 
+                       class="input-field">
+            </td>
+        </tr>
+    <?php endfor; ?>
+</table>
+
     </div>
-
-    <p>
-    <br>Reflexione sobre el resultado obtenido. Anote aquellas observaciones que puedan ser de su interés. Identifique sus fortalezas y debilidades respecto a su cadena de valor 
-    </p>
-    <!-- Sección de Fortalezas -->
-    <h2>Fortalezas</h2>
-    <table>
-        <tr>
-            <td>F1:</td>
-            <td><input type="text" name="fortaleza_0" value="<?php echo htmlspecialchars($fortalezas[0]); ?>" oninput="guardarValor('fortaleza', 0, this.value)"></td>
-            </tr>
-        <tr>
-            <td>F2:</td>
-            <td><input type="text" name="fortaleza_1" value="<?php echo htmlspecialchars($fortalezas[1]); ?>" oninput="guardarValor('fortaleza', 1, this.value)"></td>
-        </tr>
-        <tr>
-            <td>F3:</td>
-            <td><input type="text" name="fortaleza_2" value="<?php echo htmlspecialchars($fortalezas[2]); ?>" oninput="guardarValor('fortaleza', 2, this.value)"></td>
-        </tr>
-        <tr>
-            <td>F4:</td>
-            <td><input type="text" name="fortaleza_3" value="<?php echo htmlspecialchars($fortalezas[3]); ?>" oninput="guardarValor('fortaleza', 3, this.value)"></td>
-        </tr>
-    </table>
-
-    <!-- Sección de Debilidades -->
-    <h2>Debilidades</h2>
-    <table>
-        <tr>
-            <td>D1:</td>
-            <td><input type="text" name="debilidad_0" value="<?php echo htmlspecialchars($debilidades[0]); ?>" oninput="guardarValor('debilidad', 0, this.value)"></td>
-        </tr>
-        <tr>
-            <td>D2:</td>
-            <td><input type="text" name="debilidad_1" value="<?php echo htmlspecialchars($debilidades[1]); ?>" oninput="guardarValor('debilidad', 1, this.value)"></td>
-        </tr>
-        <tr>
-            <td>D3:</td>
-            <td><input type="text" name="debilidad_2" value="<?php echo htmlspecialchars($debilidades[2]); ?>" oninput="guardarValor('debilidad', 2, this.value)"></td>
-        </tr>
-        <tr>
-            <td>D4:</td>
-            <td><input type="text" name="debilidad_3" value="<?php echo htmlspecialchars($debilidades[3]); ?>" oninput="guardarValor('debilidad', 3, this.value)"></td>
-        </tr>
-    </table>
 </body>
 </html>
