@@ -2,6 +2,7 @@
 session_start();
 require '../datos/conexion.php';
 
+
 if (!isset($_SESSION['user_id'])) {
     die("No estás autenticado.");
 }
