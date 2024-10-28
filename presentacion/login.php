@@ -26,9 +26,10 @@
             padding: 40px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 380px;
+            max-width: 500px;
             transform: translateY(50px);
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn 1.0s ease-out forwards;
+            text-align: center; /* Centra el contenido */
         }
 
         @keyframes fadeIn {
@@ -47,7 +48,6 @@
             color: #4b6fe0;
             margin-bottom: 20px;
             font-size: 2rem;
-            text-align: center;
             font-weight: 700;
             position: relative;
         }
@@ -158,8 +158,11 @@
 <body>
 
     <div class="login-container">
+        <!-- Contenedor de la animación Lottie -->
         <h1><i class="fa fa-sign-in-alt"></i> Iniciar sesión</h1>
 
+        <div id="lottie-animation" style="width: 100%; height: 350px; margin-bottom: 20px;"></div>
+        
         <!-- Mostrar mensaje de error si las credenciales son incorrectas -->
         <?php if (isset($_GET['error'])): ?>
             <p class="error-message"><i class="fa fa-exclamation-circle"></i> Credenciales incorrectas. Intenta nuevamente.</p>
@@ -206,6 +209,15 @@
 
     <!-- Script para mostrar/ocultar contraseña -->
     <script>
+        // Inicializa la animación Lottie
+        var animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-animation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '../lottie/login.json' // Cambia esto por la ruta a tu archivo JSON
+        });
+
         function togglePassword() {
             var passwordField = document.getElementById('password');
             var passwordIcon = document.querySelector('.toggle-password i');
