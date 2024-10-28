@@ -27,28 +27,24 @@ if (!preg_match('/^[0-9a-f]{24}$/', $plan_id)) {
 
 // Recuperar la visión existente del plan desde MongoDB
 try {
-    $collection = $db->planes; // Cambiar a la colección 'planes'
+    $collection = $db->planes;
 
-    // Buscar el documento del plan donde 'user_id' y 'plan_id' coincidan
     $documento = $collection->findOne(['_id' => new MongoDB\BSON\ObjectId($plan_id), 'user_id' => $_SESSION['user_id']]);
 
     if ($documento && isset($documento['vision'])) {
-        // Asignar la visión existente a la variable
         $vision_usuario = $documento['vision'];
     }
 } catch (Exception $e) {
     error_log("Error al recuperar visión: " . $e->getMessage());
-    $_SESSION['error_message'] = "Error: " . $e->getMessage(); // Muestra el mensaje de error
+    $_SESSION['error_message'] = "Error: " . $e->getMessage();
 }
 
 // Manejar el envío del formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nueva_vision = $_POST['vision'] ?? '';
-    $plan_id = $_GET['plan_id'] ?? ''; // Obtener el plan_id del formulario
 
     if ($nueva_vision) {
         try {
-            // Actualizar la visión en el plan
             $result = $collection->updateOne(
                 ['_id' => new MongoDB\BSON\ObjectId($plan_id)],
                 ['$set' => [
@@ -67,206 +63,301 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['error_message'] = "Ocurrió un error al actualizar la visión. Por favor, intenta nuevamente.";
         }
 
-        // Redirigir a la misma página para evitar reenvío del formulario
         header("Location: vision.php?plan_id=$plan_id");
         exit();
     }
 }
+
+
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>2. VISIÓN</title>
     <style>
         /* Estilos generales */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e9f1f5;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             margin: 0;
             padding: 0;
-            color: #333;
+            height: 100vh;
         }
 
-        .mision-container {
-            width: 90%;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            background-color: #ffffff;
-            border-radius: 12px;
-        }
-
-        .mision-header {
-            background-color: #007acc;
-            color: white;
-            padding: 15px;
-            font-size: 2.5em;
-            text-align: center;
-            margin-bottom: 20px;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .mision-text {
-            font-size: 1.2em;
-            line-height: 1.8;
-            margin-bottom: 20px;
-        }
-
-        textarea {
+        /* Barra de progreso en pasos */
+        .progress-container {
+            display: flex;
+            justify-content: center;
             width: 100%;
-            height: 150px;
-            padding: 15px;
-            font-size: 1.5em;
+            max-width: 900px;
+            margin: 20px 0;
+        }
+
+        .progress-step {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            background-color: #d1d1d1;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .step.completed {
+            background-color: #0099cc;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 4px;
+            background-color: #d1d1d1;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .step-line.active {
+            background-color: #0099cc;
+        }
+
+        /* Contenedor de contenido */
+        .content-container {
+            width: 90%;
+            max-width: 1000px;
+            background-color: #fff;
             border-radius: 8px;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px auto;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .content-header {
+            background-color: #0099cc;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+        }
+
+        .content-text {
+            font-size: 1.1em;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Área de texto mejorada */
+        textarea {
+            width: 95%;
+            height: 140px;
+            margin-top: 15px;
+            padding: 15px;
+            font-size: 1em;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             resize: none;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
         }
 
         textarea:focus {
-            border-color: #007acc;
+            border-color: #0099cc;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 153, 204, 0.2);
             outline: none;
         }
 
-        .save-button {
-            background-color: #007acc;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: 0.3s;
-            margin-top: 10px;
+        /* Botones de navegación */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
         }
 
-        .save-button:hover {
-            background-color: #005f99;
+        button {
+            background-color: #0099cc;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #007ba7;
             transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
 
         .success-message, .error-message {
+            padding: 15px;
+            margin: 20px auto;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1000px; 
+            text-align: center;
             font-size: 1.2em;
-            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .success-message {
-            color: green;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .error-message {
-            color: red;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
-        .examples {
+        /* Efecto de animación */
+        .success-message.show, .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .success-message.hide, .error-message.hide {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
             margin-top: 20px;
         }
 
-        .diagram {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-        .diagram-circle {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 50%;
-            background-color: #007acc;
+        button {
+            background-color: #0099cc;
             color: white;
-            margin: 10px;
-        }
-
-        .diagram-arrow {
-            display: inline-block;
-            margin: 10px;
-            font-weight: bold;
-        }
-
-        .diagram-questions {
-            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 1em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
         }
 
-        .diagram-questions span {
-            display: block;
-            margin: 5px 0;
+        button i {
+            margin-right: 8px; /* Espacio entre el ícono y el texto */
         }
+
+        button:hover {
+            background-color: #007ba7;
+            transform: translateY(-2px);
+        }
+
     </style>
 </head>
 <body>
-    <div class="mision-container">
-        <header>
-            <a href="index.php" class="indice">ÍNDICE</a>
-        </header>
-        
-        <main>
-            <h1 class="mision-header">2. VISIÓN</h1>
-            
-            <p class="mision-text">
-                La <strong>VISIÓN</strong> de una empresa define lo que la empresa/organización quiere lograr en el futuro. Es lo que la organización aspira llegar a ser en torno a 2-3 años.
-            </p>
-            
-            <ul>
-                <li>Debe ser retadora, positiva, compartida y coherente con la misión.</li>
-                <li>Marca el fin último que la estrategia debe seguir.</li>
-                <li>Proyecta la imagen de destino que se pretende alcanzar.</li>
-            </ul>
-            
-            <p class="mision-text">
-                La visión debe ser conocida y compartida por todos los miembros de la empresa y también por aquellos que se relacionan con ella.
-            </p>
-            
-            <div class="examples">
-                <h2>EJEMPLOS</h2>
-                <p><strong>Empresa de servicios</strong><br>
-                Ser el grupo empresarial de referencia en nuestras áreas de actividad.</p>
-                
-                <p><strong>Empresa productora de café</strong><br>
-                Queremos ser en el mundo el punto de referencia de la cultura y de la excelencia del café. Una empresa innovadora que propone los mejores productos y lugares de consumo y que, gracias a ello, crece y se convierte en líder de la alta gama.</p>
-                
-                <p><strong>Agencia de certificación</strong><br>
-                Ser líderes en nuestro sector y un actor principal en todos los segmentos de mercado en los que estamos presentes, en los mercados clave.</p>
-            </div>
-            
-            <div class="vision-input">
-                <form method="POST" action="vision.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>">
-                    <textarea name="vision" rows="4" required placeholder="Describe la Visión de tu empresa."><?php echo htmlspecialchars($vision_usuario); ?></textarea>
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                    <button type="submit" class="save-button">Guardar Visión</button>
-                </form>
-            </div>
 
-            <!-- Mostrar mensajes de éxito o error -->
-            <?php if (isset($_SESSION['success_message'])): ?>
-                <div class="success-message">
-                    <?php echo htmlspecialchars($_SESSION['success_message']); unset($_SESSION['success_message']); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (isset($_SESSION['error_message'])): ?>
-                <div class="error-message">
-                    <?php echo htmlspecialchars($_SESSION['error_message']); unset($_SESSION['error_message']); ?>
-                </div>
-            <?php endif; ?>
-            
-            <div class="diagram">
-                <p><strong>Relación entre Misión y Visión</strong></p>
-                <div class="diagram-circle">Misión</div>
-                <div class="diagram-arrow">Procesos cotidianos</div>
-                <div class="diagram-circle">Visión</div>
-                <div class="diagram-questions">
-                    <span>¿Cuál es la situación actual?</span>
-                    <span>¿Qué camino a seguir?</span>
-                    <span>¿Cuál es la situación futura?</span>
-                </div>
-            </div>
-        </main>
+    <!-- Barra de progreso en pasos -->
+    <div class="progress-container">
+        <div class="progress-step">
+            <div class="step completed">1</div>
+            <div class="step-line active"></div>
+            <div class="step completed">2</div>
+            <div class="step-line active"></div>
+            <div class="step">3</div>
+            <div class="step-line"></div>
+            <div class="step">4</div>
+            <div class="step-line"></div>
+            <div class="step">5</div>
+            <div class="step-line"></div>
+            <div class="step">6</div>
+            <div class="step-line"></div>
+            <div class="step">7</div>
+            <div class="step-line"></div>
+            <div class="step">8</div>
+        </div>
     </div>
+
+    <div class="content-container">
+        <div class="content-header">2. VISIÓN</div>
+        <p class="content-text">
+            La <strong>VISIÓN</strong> es lo que la empresa/organización aspira lograr en el futuro.
+        </p>
+        <ul>
+            <li>Debe ser clara, positiva y compartida.</li>
+            <li>Proyecta la imagen de destino que se pretende alcanzar.</li>
+            <li>Refleja las aspiraciones a largo plazo.</li>
+        </ul>
+
+        <?php
+        function mostrarMensaje($tipo, $mensaje) {
+            echo "<div class='{$tipo}-message'>" . htmlspecialchars($mensaje) . "</div>";
+        }
+
+        // En la sección de mensajes
+        if (isset($_SESSION['success_message'])) {
+            mostrarMensaje('success', $_SESSION['success_message']);
+            unset($_SESSION['success_message']);
+        }
+
+        if (isset($_SESSION['error_message'])) {
+            mostrarMensaje('error', $_SESSION['error_message']);
+            unset($_SESSION['error_message']);
+        }
+
+        ?>
+
+        <form method="POST" action="">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            <textarea name="vision" id="vision-textarea" placeholder="Describe la Visión de tu empresa." required><?php echo htmlspecialchars($vision_usuario); ?></textarea>
+            <button class="save-button" type="submit">Guardar Visión</button>
+        </form>
+
+    </div>
+
+    <!-- Botones de navegación en la parte inferior -->
+    <div class="navigation-buttons">
+        <button class="nav-button" onclick="window.location.href='index.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
+            <i class="fas fa-home"></i> INDICE
+        </button>
+        <button class="nav-button" onclick="window.location.href='mision.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
+            <i class="fas fa-bullseye"></i> 1. MISION
+        </button>
+        <button class="nav-button" onclick="window.location.href='valores.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
+            <i class="fas fa-hand-holding-heart icon"></i> 3. VALORES
+        </button>
+    </div>
+
 </body>
 </html>
 
