@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión - Sistema Plan Estrategico</title>
+    <title>Iniciar sesión - Sistema Plan Estratégico</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -86,7 +86,6 @@
             width: 60px;
         }
 
-        /* Estilo para el botón de mostrar/ocultar contraseña */
         .input-group-text .toggle-password {
             cursor: pointer;
             color: #4b6fe0;
@@ -137,24 +136,22 @@
             text-decoration: underline;
         }
 
-        /* Animaciones en el icono de error */
-        .error-message i {
-            margin-right: 5px;
-            animation: shake 0.5s ease infinite alternate;
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
         }
 
-        @keyframes shake {
-            0% {
-                transform: translateX(-5px);
-            }
-            100% {
-                transform: translateX(5px);
-            }
-        }
-
-        /* Mejoras para el focus y efectos visuales en los campos */
-        .form-control:focus + .input-group-text {
-            background-color: #e1e8f1;
+        #lottie {
+            width: 100px; /* Ajusta el tamaño de la animación */
+            height: 100px; /* Ajusta el tamaño de la animación */
         }
     </style>
 </head>
@@ -168,7 +165,7 @@
             <p class="error-message"><i class="fa fa-exclamation-circle"></i> Credenciales incorrectas. Intenta nuevamente.</p>
         <?php endif; ?>
 
-        <form action="controlador_login.php" method="POST">
+        <form action="controlador_login.php" method="POST" onsubmit="showLoader()">
             <!-- Campo de correo -->
             <div class="form-group">
                 <div class="input-group">
@@ -198,9 +195,14 @@
         </div>
     </div>
 
+    <div class="loading-overlay" id="loadingOverlay">
+        <div id="lottie"></div>
+    </div>
+
     <!-- Bootstrap JS y dependencias de Bootstrap (Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.6/lottie.min.js"></script>
 
     <!-- Script para mostrar/ocultar contraseña -->
     <script>
@@ -217,6 +219,26 @@
                 passwordIcon.classList.add('fa-eye');
             }
         }
+
+        function showLoader() {
+            var overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+
+            // Inicializar Lottie para mostrar la animación
+            var animation = lottie.loadAnimation({
+                container: document.getElementById('lottie'),
+                renderer: 'svg',
+                loop: false,
+                autoplay: true,
+                path: '../lottie/Cargando.json' // Cambia esto por la ruta a tu archivo JSON
+            });
+
+            // Ocultar después de 4 segundos
+            setTimeout(function() {
+                overlay.style.display = 'none'; // Ocultar después de 4 segundos
+            }, 4000);
+        }
     </script>
 </body>
 </html>
+
