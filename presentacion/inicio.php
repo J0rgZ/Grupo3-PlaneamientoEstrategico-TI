@@ -72,6 +72,8 @@ if (isset($_POST['iniciar'])) {
     header("Location: index.php?plan_id=" . $id_plan);
     exit();
 }
+
+date_default_timezone_set('America/Bogota');
 ?>
 
 <!DOCTYPE html>
@@ -237,8 +239,8 @@ if (isset($_POST['iniciar'])) {
                             <tr>
                                 <td><?php echo $index + 1; ?></td>
                                 <td><?php echo htmlspecialchars($plan->nombre); ?></td>
-                                <td><?php echo $plan->fecha_creacion ? $plan->fecha_creacion->toDateTime()->format('Y-m-d H:i:s') : 'No disponible'; ?></td>
-                                <td><?php echo $plan->fecha_modificacion ? $plan->fecha_modificacion->toDateTime()->format('Y-m-d H:i:s') : 'No disponible'; ?></td>
+                                <td><?php echo $plan->fecha_creacion ? $plan->fecha_creacion->toDateTime()->setTimezone(new DateTimeZone('America/Bogota'))->format('Y-m-d H:i:s') : 'No disponible'; ?></td>
+                                <td><?php echo $plan->fecha_modificacion ? $plan->fecha_modificacion->toDateTime()->setTimezone(new DateTimeZone('America/Bogota'))->format('Y-m-d H:i:s') : 'No disponible'; ?></td>
                                 <td>
                                     <div class="status-bar 
                                         <?php echo ($plan->estado === 'Completado') ? 'status-completado' : (($plan->estado === 'No iniciado') ? 'status-no-completado' : 'status-en-proceso'); ?>">
