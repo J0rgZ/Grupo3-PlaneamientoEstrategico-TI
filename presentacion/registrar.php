@@ -36,8 +36,9 @@ unset($_SESSION['success_message']);
             padding: 40px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 380px;
+            max-width: 500px;
             animation: fadeIn 0.5s ease-out forwards;
+            text-align: center; /* Centra el contenido */
         }
 
         @keyframes fadeIn {
@@ -141,7 +142,12 @@ unset($_SESSION['success_message']);
 <body>
 
     <div class="register-container">
+
         <h1><i class="fa fa-user-plus"></i> Registrarse</h1>
+        <!-- Contenedor de la animación Lottie -->
+        <div id="lottie-animation" style="width: 100%; height: 280px; margin-bottom: 20px;"></div>
+        
+        
 
         <!-- Mostrar mensajes de error o éxito -->
         <?php if (!empty($error_message)): ?>
@@ -196,6 +202,17 @@ unset($_SESSION['success_message']);
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.6/lottie.min.js"></script>
+
+    <!-- Inicializa la animación Lottie -->
+    <script>
+        var animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-animation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '../lottie/register.json' // Cambia esto por la ruta a tu archivo JSON
+        });
+    </script>
 </body>
 </html>
-
