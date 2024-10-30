@@ -64,21 +64,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
         $_SESSION['error_message'] = "Por favor, ingresa los valores antes de continuar.";
     }
 
-    // Redirigir según la acción seleccionada
-    switch ($accion) {
-        case 'index':
-            header("Location: ../presentacion/index.php");
-            exit();
-        case 'vision':
-            header("Location: ../presentacion/vision.php");
-            exit();
-        case 'resumen':
-            header("Location: ../presentacion/resumen.php");
-            exit();
-        default:
-            // Redirigir a una página por defecto si la acción no coincide
-            header("Location: ../presentacion/index.php");
-            exit();
+    // Verificar si la solicitud es AJAX o no
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        // Solicitud AJAX, responder con JSON
+        echo json_encode(['success' => 'Valores guardados exitosamente.']);
+    } else {
+        // Solicitud normal, redirigir según la acción seleccionada
+        switch ($accion) {
+            case 'index':
+                header("Location: ../presentacion/index.php");
+                exit();
+            case 'vision':
+                header("Location: ../presentacion/vision.php");
+                exit();
+            case 'resumen':
+                header("Location: ../presentacion/resumen.php");
+                exit();
+            default:
+                // Redirigir a una página por defecto si la acción no coincide
+                header("Location: ../presentacion/index.php");
+                exit();
+        }
     }
 
 } else {

@@ -24,14 +24,21 @@ if (isset($_GET['plan_id'])) {
 
     // Recuperar los valores existentes del usuario y plan desde MongoDB
     try {
-        $collection = $db->valores;
+        $collection = $db->planes; // Cambié a 'planes' para ser consistente con logicaValores.php
 
         // Buscar un documento donde 'user_id' y 'plan_id' coincidan
-        $documento = $collection->findOne(['user_id' => $_SESSION['user_id'], 'plan_id' => $plan_id]);
+        $filtro = [
+            'user_id' => $_SESSION['user_id'],
+            '_id' => new MongoDB\BSON\ObjectId($plan_id)
+        ];
+        
+        $documento = $collection->findOne($filtro);
 
         if ($documento && isset($documento['valores'])) {
             // Asignar los valores existentes a la variable
             $valores_usuario = $documento['valores'];
+        } else {
+            $_SESSION['error_message'] = "No se encontraron valores para el plan especificado.";
         }
     } catch (Exception $e) {
         // Manejar errores de conexión o consulta
@@ -51,6 +58,33 @@ if (isset($_GET['plan_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Valores</title>
     <link rel="stylesheet" href="estilos.css"> <!-- Incluye tu archivo CSS aquí -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        setInterval(function() {
+            // Realizar la solicitud AJAX cada 5 segundos
+            $.ajax({
+                url: '../logica/logicaValores.php',
+                type: 'POST',
+                data: {
+                    valores: $('#valoresInput').val(), // Enviar el valor del textarea
+                    plan_id: $('#planId').val(), // Enviar el plan_id
+                    action: 'index', // Acción predeterminada
+                    csrf_token: $('#csrf_token').val() // Enviar el token CSRF
+                },
+                success: function(response) {
+                    // Manejar el éxito de la solicitud de forma silenciosa
+                    console.log("Valores actualizados exitosamente."); // Si quieres mostrar algo en la consola
+                },
+                error: function(xhr, status, error) {
+                    // Manejar el error de la solicitud
+                    console.error("Error al actualizar valores: " + error);
+                }
+            });
+        }, 5000); // 5000 ms = 5 segundos
+    });
+</script>
+
 </head>
 <body>
     <div class="valores-container">
@@ -84,23 +118,24 @@ if (isset($_GET['plan_id'])) {
                 ?>
             </div>
         <?php endif; ?>
+            <!-- Formulario que se actualiza automáticamente con AJAX -->
+            <form method="POST" action="../logica/logicaValores.php" id="valoresForm">
+                <!-- Token CSRF oculto -->
+                <input type="hidden" id="csrf_token" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-        <!-- Formulario que envía datos a logicaValores.php -->
-        <form method="POST" action="../logica/logicaValores.php">
-            <!-- Token CSRF oculto -->
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                <!-- plan_id oculto -->
+                <input type="hidden" id="planId" name="plan_id" value="<?php echo htmlspecialchars($plan_id); ?>">
 
-            <!-- plan_id oculto -->
-            <input type="hidden" name="plan_id" value="<?php echo htmlspecialchars($plan_id); ?>">
-
-            <!-- Área de texto para ingresar valores, prellenada con los valores existentes -->
-            <textarea name="valores" placeholder="Ingrese los valores de su empresa aquí..." required><?php echo htmlspecialchars($valores_usuario); ?></textarea>
+                <!-- Área de texto para ingresar valores, prellenada con los valores existentes -->
+                <textarea id="valoresInput" name="valores" placeholder="Ingrese los valores de su empresa aquí..." required><?php echo htmlspecialchars($valores_usuario); ?></textarea>
+                
                 <div class="navigation-buttons">
-                    <button type="submit" name="action" value="index_<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">ÍNDICE</button>
-                    <button type="submit" name="action" value="vision_<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">2. VISIÓN</button>
-                    <button type="submit" name="action" value="resumen_<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">4. RESUMEN</button>
+                    <button type="submit" name="action" value="index" class="nav-button">ÍNDICE</button>
+                    <button type="submit" name="action" value="vision" class="nav-button">2. VISIÓN</button>
+                    <button type="submit" name="action" value="resumen" class="nav-button">4. RESUMEN</button>
                 </div>
-        </form>
+            </form>
+
 
     </div>
 </body>
