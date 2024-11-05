@@ -84,113 +84,7 @@ date_default_timezone_set('America/Bogota');
     <title>Mis Planes Estratégicos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            background-color: #121212; /* Fondo oscuro */
-            color: #e0e0e0; /* Texto claro */
-            padding: 20px;
-            font-family: 'Arial', sans-serif;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #00bcd4;
-            padding-bottom: 10px;
-        }
-        .header h1 {
-            font-size: 28px;
-            color: #00bcd4; /* Color turquesa */
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-        }
-        .card {
-            background-color: #1e1e1e; /* Fondo de tarjeta */
-            border: none;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-        .card-header {
-            background-color: #292b2c; /* Fondo más claro */
-            color: #ffffff;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .table {
-            background-color: #1e1e1e; /* Fondo de la tabla */
-            border-radius: 10px;
-            overflow: hidden; /* Bordes redondeados */
-        }
-        .table th, .table td {
-            text-align: center;
-            vertical-align: middle;
-            border: none; /* Sin bordes */
-            color: #ffffff; /* Color de texto en celdas */
-        }
-        .table th {
-            background-color: #00bcd4; /* Color turquesa */
-            color: #fff;
-            position: sticky;
-            top: 0;
-            z-index: 10; /* Para que los encabezados queden por encima */
-        }
-        .table tbody tr {
-            transition: background-color 0.3s;
-        }
-        .table tbody tr:hover {
-            background-color: #292b2c; /* Fondo oscuro al pasar el mouse */
-        }
-        .status-bar {
-            height: 20px;
-            border-radius: 5px;
-        }
-        .status-completado {
-            background-color: #28a745; /* Verde */
-        }
-        .status-no-completado {
-            background-color: #ffc107; /* Amarillo */
-        }
-        .status-en-proceso {
-            background-color: #17a2b8; /* Turquesa */
-        }
-        .btn-primary {
-            background-color: #00bcd4; /* Color turquesa */
-            border: none;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #0288d1; /* Turquesa oscuro */
-        }
-
-        /* Estilos para el tema claro */
-        .light-theme {
-            background-color: #ffffff; /* Fondo blanco */
-            color: #000000; /* Texto negro */
-        }
-        .light-theme .card {
-            background-color: #f8f9fa; /* Fondo claro de la tarjeta */
-            color: #000; /* Texto negro en tarjeta */
-        }
-        .light-theme .table {
-            background-color: #ffffff; /* Fondo blanco para la tabla */
-        }
-        .light-theme .table th {
-            background-color: #007bff; /* Color azul para el encabezado de la tabla */
-            color: #fff;
-        }
-        .light-theme .table td {
-            color: #000; /* Color negro para el texto de las celdas */
-        }
-        .light-theme .btn-primary {
-            background-color: #007bff; /* Azul */
-        }
-        .light-theme .btn-primary:hover {
-            background-color: #0056b3; /* Azul oscuro */
-        }
-    </style>
+    <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
     <div class="container">
@@ -213,7 +107,9 @@ date_default_timezone_set('America/Bogota');
                     <div class="mb-3">
                         <input type="text" name="nuevo_plan" class="form-control" placeholder="Nombre del nuevo plan" required>
                     </div>
-                    <button type="submit" name="agregar" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar Plan</button>
+                    <button type="submit" name="agregar" class="btn btn-agregar">
+                        <i class="fas fa-plus"></i> <span>Agregar Plan</span>
+                    </button>
                 </form>
             </div>
         </div>
@@ -248,65 +144,70 @@ date_default_timezone_set('America/Bogota');
                                     <span><?php echo htmlspecialchars($plan->estado); ?></span>
                                 </td>
                                 <td>
-                                    <div class="d-flex flex-wrap justify-content-center align-items-center">
-                                        <div class="text-center me-3">
-                                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal<?php echo $plan->_id; ?>">
-                                                <i class="fas fa-edit"></i>
+                                <div class="d-flex flex-wrap justify-content-center align-items-center">
+                                    <!-- Botón Editar (amarillo) -->
+                                    <div class="text-center me-3">
+                                        <button type="button" class="btn btn-editar btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal<?php echo $plan->_id; ?>">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <span class="d-none d-sm-block">Editar</span>
+                                    </div>
+
+                                    <!-- Botón Eliminar (rojo) -->
+                                    <div class="text-center me-3">
+                                        <form method="post" style="display:inline;">
+                                            <input type="hidden" name="id_plan" value="<?php echo $plan->_id; ?>">
+                                            <button type="submit" name="eliminar" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este plan?');">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
-                                            <span class="d-none d-sm-block">Editar</span>
-                                        </div>
+                                            <span class="d-none d-sm-block">Eliminar</span>
+                                        </form>
+                                    </div>
 
-                                        <div class="text-center me-3">
-                                            <form method="post" style="display:inline;">
-                                                <input type="hidden" name="id_plan" value="<?php echo $plan->_id; ?>">
-                                                <button type="submit" name="eliminar" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este plan?');">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                                <span class="d-none d-sm-block">Eliminar</span>
-                                            </form>
-                                        </div>
+                                    <!-- Botón Iniciar (verde) -->
+                                    <div class="text-center">
+                                        <form method="post" style="display:inline;">
+                                            <input type="hidden" name="id_plan" value="<?php echo $plan->_id; ?>">
+                                            <button type="submit" name="iniciar" class="btn btn-iniciar btn-sm">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <span class="d-none d-sm-block">Iniciar</span>
+                                        </form>
+                                    </div>
+                                </div>
 
-                                        <div class="text-center">
-                                            <form method="post" style="display:inline;">
-                                                <input type="hidden" name="id_plan" value="<?php echo $plan->_id; ?>">
-                                                <button type="submit" name="iniciar" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-play"></i>
-                                                </button>
-                                                <span class="d-none d-sm-block">Iniciar</span>
+                                <!-- Modal sin la clase fade -->
+                                <div class="modal fade" id="editarModal<?php echo $plan->_id; ?>" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editarModalLabel">Editar Plan Estratégico</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="id_plan" value="<?php echo $plan->_id; ?>">
+                                                    <div class="mb-3">
+                                                        <label for="nombre_plan" class="form-label">Nombre del Plan</label>
+                                                        <input type="text" name="nombre_plan" class="form-control" value="<?php echo htmlspecialchars($plan->nombre); ?>" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="estado_plan" class="form-label">Estado</label>
+                                                        <select name="estado_plan" class="form-select" required>
+                                                            <option value="No iniciado" <?php echo ($plan->estado === 'No iniciado') ? 'selected' : ''; ?>>No iniciado</option>
+                                                            <option value="En proceso" <?php echo ($plan->estado === 'En proceso') ? 'selected' : ''; ?>>En proceso</option>
+                                                            <option value="Completado" <?php echo ($plan->estado === 'Completado') ? 'selected' : ''; ?>>Completado</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                    <button type="submit" name="editar" class="btn btn-primary">Guardar Cambios</button>
+                                                </div>
                                             </form>
                                         </div>
                                     </div>
-
-                                    <div class="modal fade" id="editarModal<?php echo $plan->_id; ?>" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <form method="post">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="editarModalLabel">Editar Plan</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <input type="hidden" name="id_plan" value="<?php echo $plan->_id; ?>">
-                                                        <div class="mb-3">
-                                                            <input type="text" name="nombre_plan" class="form-control" value="<?php echo htmlspecialchars($plan->nombre); ?>" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="estado_plan" class="form-label">Estado</label>
-                                                            <select name="estado_plan" class="form-select" required>
-                                                                <option value="No iniciado" <?php echo ($plan->estado === 'No iniciado') ? 'selected' : ''; ?>>No iniciado</option>
-                                                                <option value="En proceso" <?php echo ($plan->estado === 'En proceso') ? 'selected' : ''; ?>>En proceso</option>
-                                                                <option value="Completado" <?php echo ($plan->estado === 'Completado') ? 'selected' : ''; ?>>Completado</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                        <button type="submit" name="editar" class="btn btn-primary">Guardar Cambios</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
+                                </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -322,22 +223,26 @@ date_default_timezone_set('America/Bogota');
         const body = document.body;
 
         // Cargar el tema guardado en LocalStorage
-        if (localStorage.getItem('theme') === 'light') {
-            body.classList.add('light-theme');
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-theme');
+            themeToggle.innerHTML = '<i class="fas fa-adjust"></i> Cambiar a Tema Claro';
+        } else {
+            themeToggle.innerHTML = '<i class="fas fa-adjust"></i> Cambiar a Tema Oscuro';
         }
 
         themeToggle.addEventListener('click', () => {
-            body.classList.toggle('light-theme');
+            body.classList.toggle('dark-theme');
 
             // Guardar la preferencia en LocalStorage
-            if (body.classList.contains('light-theme')) {
-                localStorage.setItem('theme', 'light');
-                themeToggle.textContent = 'Cambiar a Tema Oscuro';
-            } else {
+            if (body.classList.contains('dark-theme')) {
                 localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = 'Cambiar a Tema Claro';
+                themeToggle.innerHTML = '<i class="fas fa-adjust"></i> Cambiar a Tema Claro';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerHTML = '<i class="fas fa-adjust"></i> Cambiar a Tema Oscuro';
             }
         });
     </script>
 </body>
 </html>
+
