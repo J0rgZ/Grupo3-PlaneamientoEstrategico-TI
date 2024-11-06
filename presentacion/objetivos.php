@@ -31,115 +31,349 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Objetivos Estratégicos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
             margin: 0;
-            padding: 20px;
-            background-color: #ffffff;
+            padding: 0;
+            height: 100%;
         }
+
+        /* Barra de progreso en pasos */
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px 0;
+        }
+
+        .progress-step {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            background-color: #d1d1d1;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .step.completed {
+            background-color: #0099cc;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 4px;
+            background-color: #d1d1d1;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .step-line.active {
+            background-color: #0099cc;
+        }
+
+        /* Contenedor principal */
         .container {
-            max-width: 800px;
+            max-width: 900px;
+            width: 100%;
             margin: 0 auto;
-            background-color: white;
+            background-color: #fff;
             padding: 20px;
-            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.4s ease;
+            margin-bottom: 80px; /* Para que los botones no se superpongan */
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        header, footer {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
         .indice {
             background-color: #ff7f7f;
             color: white;
             padding: 5px 10px;
-            display: inline-block;
-            margin-bottom: 10px;
             font-weight: bold;
             text-decoration: none;
         }
-        h1, h2 {
-            background-color: #4ca1af;
+
+        h1 {
+            background-color: #0099cc;
             color: white;
             padding: 10px;
-            margin-top: 20px;
             text-align: center;
+            font-size: 2em;
         }
+
         .content {
             margin-top: 20px;
         }
+
         .objetivos-info, .uen-info {
-            background-color: #f0f0f0;
-            padding: 15px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
         }
+
         .piramide {
             width: 100%;
             max-width: 400px;
             margin: 20px auto;
-            display: block;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
+
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: left;
         }
+
         th {
-            background-color: #4ca1af;
+            background-color: #0099cc;
             color: white;
         }
-        .meta-table {
+
+        .meta-table, .objetivos-table {
             margin-top: 20px;
+            width: 100%;
         }
-        .meta-table th {
+
+        .meta-table th, .objetivos-table th {
             background-color: #808080;
+            color: white;
         }
-        .objetivos-table {
-            margin-top: 20px;
+
+        .meta-table td {
+            background-color: #f8f8f8;
         }
-        .objetivos-table th {
-            background-color: #4ca1af;
-        }
+
         .objetivos-table td {
             height: 50px;
         }
-        footer {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .nav-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4ca1af;
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-        }
+
         textarea {
             width: 100%;
             height: 100px;
-            margin-top: 10px;
+            padding: 10px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            resize: none;
+            transition: all 0.3s ease;
         }
+
+        textarea:focus {
+            border-color: #0099cc;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 153, 204, 0.2);
+            outline: none;
+        }
+
+        .nav-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0099cc;
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #007ba7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .progress-container {
+                margin: 10px;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            .meta-table, .objetivos-table {
+                font-size: 0.9em;
+            }
+
+            textarea {
+                font-size: 1em;
+                height: 80px;
+            }
+
+            footer {
+                position: fixed;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                padding: 10px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                background-color: #fff;
+                z-index: 10;
+            }
+
+            footer .nav-button {
+                margin: 0 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-button {
+                font-size: 0.9em;
+                padding: 8px 15px;
+            }
+        }
+
+        
+
+
+            /* Estilo para los botones de navegación */
+    .navigation-buttons {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        z-index: 9999; /* Asegurarse de que esté por encima de otros contenidos */
+        padding: 10px;
+        background-color: #fff; /* Fondo blanco para que no se mezcle con el contenido */
+        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil para que se distinga */
+    }
+
+    .nav-button {
+        background-color: #0099cc;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 5px;
+        font-size: 1.1em;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .nav-button i {
+        font-size: 1.2em; /* Icono un poco más grande */
+    }
+
+    .nav-button:hover {
+        background-color: #007ba7;
+        transform: translateY(-2px); /* Efecto sutil al pasar el ratón */
+    }
+
+    .nav-button:active {
+        background-color: #005f7a;
+        transform: translateY(0); /* Efecto al hacer clic */
+    }
+
+    /* Para pantallas más pequeñas */
+    @media (max-width: 768px) {
+        .nav-button {
+            font-size: 1em;
+            padding: 10px 15px;
+        }
+
+        .navigation-buttons {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 5px;
+        }
+    }
+
     </style>
 </head>
 <body>
+
+    <!-- Barra de progreso en pasos -->
+    <div class="progress-container">
+        <div class="progress-step">
+            <div class="step completed">1</div>
+            <div class="step-line active"></div>
+            <div class="step completed">2</div>
+            <div class="step-line active"></div>
+            <div class="step">3</div>
+            <div class="step-line"></div>
+            <div class="step">4</div>
+            <div class="step-line"></div>
+            <div class="step">5</div>
+            <div class="step-line"></div>
+            <div class="step">6</div>
+            <div class="step-line"></div>
+            <div class="step">7</div>
+            <div class="step-line"></div>
+            <div class="step">8</div>
+        </div>
+    </div>
+
     <div class="container">
-        <header>
-            <a href="index.php" class="indice">INDICE</a>
-        </header>
-        
+       
+
         <main>
             <h1>4. OBJETIVOS ESTRATÉGICOS</h1>
-            
+
             <div class="content">
                 <div class="objetivos-info">
                     <p>El siguiente paso es establecer los objetivos de una empresa en relación al sector al que pertenece.</p>
                     <p>Un OBJETIVO ESTRATÉGICO es un fin deseado, clave para la organización y para la consecución de su visión. Para una correcta planificación, construya los objetivos formando una pirámide. Los objetivos de cada nivel indican qué es lo que quiere lograrse, siendo la estructura de objetivos como está en el nivel inmediatamente inferior a esa única al cómo. Por tanto, cada objetivo es un fin en sí mismo, pero también es a su vez un medio para el logro del objetivo del nivel superior.</p>
                 </div>
-                
-                <img src="img/piramide_objetivos.jpeg" alt="Pirámide de Objetivos" class="piramide">
-                
+
+                <img src="../img/piramide_objetivos.jpeg" alt="Pirámide de Objetivos" class="piramide">
+
                 <table>
                     <tr>
                         <th>Tipo de Objetivo</th>
@@ -154,14 +388,14 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
                         <td>Son la concreción anual de los objetivos estratégicos. Han de ser claros, concisos y medibles. Se pueden distinguir dos tipos de objetivos específicos:</td>
                     </tr>
                 </table>
-                
+
                 <ol>
                     <li>Funcionales: objetivos formulados por áreas o departamentos</li>
                     <li>Individuales: objetivos que se centran en actividades y acciones concretas</li>
                 </ol>
-                
+
                 <p>Cualquier objetivo formulado tiene que presentar los siguientes atributos:</p>
-                
+
                 <table class="meta-table">
                     <tr>
                         <th>M</th>
@@ -184,7 +418,7 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
                         <td>RETADORES: desafiantes pero consecuentes con los recursos disponibles</td>
                     </tr>
                 </table>
-                
+
                 <h2>Ejemplos de Objetivos</h2>
                 <ul>
                     <li>Alcanzar los niveles de ventas previstos para los nuevos productos</li>
@@ -245,11 +479,20 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
                 </form>
             </div>
         </main>
-        
-        <footer>
-            <a href="vision.php" class="nav-button">3. VISIÓN</a>
-            <a href="analisis_interno.php" class="nav-button">5. ANÁLISIS INTERNO Y EXTERNO</a>
-        </footer>
     </div>
+
+    <!-- Botones de navegación en la parte inferior -->
+    <div class="navigation-buttons">
+        <button class="nav-button" onclick="window.location.href='index.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
+            <i class="fas fa-home"></i> INDICE
+        </button>
+        <button class="nav-button" onclick="window.location.href='valores.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
+            <i class="fas fa-hand-holding-heart icon"></i> 3. VALORES
+        </button>
+        <button class="nav-button" onclick="window.location.href='analisis.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
+            <i class="fas fa-chart-line icon"></i> 5. ANALISIS INTERNO Y EXTERNO
+        </button>
+    </div>
+
 </body>
 </html>
