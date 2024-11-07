@@ -30,7 +30,8 @@ if (isset($_POST['agregar'])) {
             'mision' => '',
             'vision' => '',
             'valores' => '',
-            'objetivos_generales' => [],
+            'objetivos_generales' => ['', '', ''],
+            'objetivos_especificos' => [['', ''], ['', ''], ['', '']],
             'preguntas' => [],
             'fortalezas' => [],
             'debilidades' => []
