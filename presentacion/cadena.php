@@ -79,7 +79,7 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
             width: 100%;
             max-width: 900px;
             margin: 20px 0;
-            margin-left: 190px;
+            margin-left: 10px;
         }
 
         .progress-step {
