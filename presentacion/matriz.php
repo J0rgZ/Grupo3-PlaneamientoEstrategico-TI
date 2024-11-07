@@ -20,40 +20,38 @@
             width: 90%;
             max-width: 800px;
             background-color: #ffffff;
-            padding: 20px;
+            padding: 30px;
             box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .header h1 {
             font-size: 1.5em;
             background-color: #0073e6;
             color: #ffffff;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
-            text-align: center;
-            width: 100%;
         }
 
         .content {
-            margin-top: 20px;
+            margin-top: 10px;
             line-height: 1.6;
         }
 
         .image-container {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
+            align-items: center;
             margin: 20px 0;
         }
 
         .image-container img {
-            width: 100px;
+            width: 80px;
             height: auto;
         }
 
@@ -85,13 +83,14 @@
         .buttons {
             display: flex;
             justify-content: space-between;
+            margin-top: 10px;
         }
 
         .buttons .nav-button {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 45%;
+            width: 48%;
             padding: 10px;
             font-size: 1em;
             color: #fff;
