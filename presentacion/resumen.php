@@ -313,7 +313,9 @@ if ($plan_id) {
         <!-- Botones de navegación -->
         <div class="navigation-buttons">
             <button onclick="window.location.href='index.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">ÍNDICE</button>
-            <button onclick="window.location.href='vision.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">2. VISIÓN</button>
+
+            <button onclick="window.location.href='matriz.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">7. MATRIZ</button>
+
         </div>
 
         <div class="footer">
