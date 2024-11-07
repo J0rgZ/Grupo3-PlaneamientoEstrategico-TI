@@ -261,6 +261,7 @@ try {
                 <button type="submit" name="action" value="resumen">4. RESUMEN</button>
             </div>
         </form>
+
     </div>
 
     <script>
