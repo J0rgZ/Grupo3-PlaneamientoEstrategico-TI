@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Generar un token CSRF
+// Generar un token CSRF si no existe
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -15,35 +15,223 @@ if (empty($_SESSION['csrf_token'])) {
 // Incluir el archivo de conexión a MongoDB
 require '../datos/conexion.php';
 
-// Recuperar datos de la base de datos
-$collection = $db->objetivos;
-$user_id = $_SESSION['user_id'];
-$documento = $collection->findOne(['user_id' => $user_id]);
+$plan_id = $_GET['plan_id'];
 
-$mision = $documento['mision'] ?? '';
-$objetivos_generales = $documento['objetivos_generales'] ?? ['', '', ''];
-$objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 3 => ['', '']];
+// Obtener el plan desde MongoDB
+$plan = $db->planes->findOne(['_id' => new MongoDB\BSON\ObjectId($plan_id)]);
+
+if ($plan) {
+    $mision = $plan['mision'] ?? '';
+    $objetivos_generales = $plan['objetivos_generales'] ?? ['', '', ''];
+
+    // Convertir objetivos_especificos a un array PHP si es BSONArray
+    $objetivos_especificos = isset($plan['objetivos_especificos']) ? json_decode(json_encode($plan['objetivos_especificos']), true) : [['', ''], ['', ''], ['', '']];
+    
+    // Asegurarse de que "objetivos_especificos" tiene tres subarreglos con dos elementos cada uno
+    for ($i = 0; $i < 3; $i++) {
+        if (!isset($objetivos_especificos[$i])) {
+            $objetivos_especificos[$i] = ['', ''];
+        } else {
+            // Asegurar que cada subarreglo tiene dos elementos
+            $objetivos_especificos[$i] = array_pad($objetivos_especificos[$i], 2, '');
+        }
+    }
+} else {
+    header("Location: index.php");
+    exit();
+}
+
+// Manejar el envío del formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['csrf_token'] == $_SESSION['csrf_token']) {
+    if (empty($mision)) {
+        $_SESSION['error_message'] = "Primero debe completar su misión en el paso 1.";
+        header("Location: objetivos.php?plan_id=$plan_id");
+        exit();
+    }
+
+    $mision = $_POST['mision'];
+    $objetivos_generales = [
+        $_POST['objetivo_general_1'],
+        $_POST['objetivo_general_2'],
+        $_POST['objetivo_general_3']
+    ];
+    $objetivos_especificos = [
+        [
+            $_POST['objetivo_especifico_1_1'],
+            $_POST['objetivo_especifico_1_2']
+        ],
+        [
+            $_POST['objetivo_especifico_2_1'],
+            $_POST['objetivo_especifico_2_2']
+        ],
+        [
+            $_POST['objetivo_especifico_3_1'],
+            $_POST['objetivo_especifico_3_2']
+        ]
+    ];
+
+    $result = $db->planes->updateOne(
+        ['_id' => new MongoDB\BSON\ObjectId($plan_id)],
+        ['$set' => [
+            'mision' => $mision,
+            'objetivos_generales' => $objetivos_generales,
+            'objetivos_especificos' => $objetivos_especificos
+        ]]
+    );
+
+    if ($result->getModifiedCount() > 0) {
+        $_SESSION['success_message'] = "Objetivos actualizados exitosamente.";
+    } else {
+        $_SESSION['error_message'] = "No se realizaron cambios en los objetivos.";
+    }
+
+    header("Location: objetivos.php?plan_id=$plan_id");
+    exit();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Objetivos Estratégicos</title>
+    <title>4. OBJETIVOS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Estilos generales */
+        /* Estilos Generales */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', Arial, sans-serif;
             background-color: #f4f6f8;
+            margin: 0;
+            padding: 0 20px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             flex-direction: column;
-            margin: 0;
-            padding: 0;
-            height: 100%;
+        }
+
+        /* Contenedor Principal */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            width: 100%;
+        }
+
+        /* Encabezados */
+        h1 {
+            color: #1a1a1a;
+            font-size: 2.2em;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #0099cc;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 1.6em;
+            margin: 2rem 0 1rem;
+        }
+
+        /* Tabla General */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            padding: 12px 20px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        /* Encabezados de tablas */
+        th {
+            background: linear-gradient(135deg, #0099cc, #007ba7);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #007ba7;
+        }
+
+        /* Filas de la tabla */
+        td {
+            color: #2d3748;
+            font-size: 1em;
+            line-height: 1.6;
+            border-bottom: 1px solid #f0f1f3;
+        }
+
+        /* Alternancia de filas (estilo de bandas) */
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* Fila activa (hover) */
+        tr:hover {
+            background-color: #f1f7fc;
+            cursor: pointer;
+        }
+
+        /* Estilo para celdas específicas */
+        td:first-child {
+            font-weight: bold;
+        }
+
+        td.text-center {
+            text-align: center;
+        }
+
+        td.text-right {
+            text-align: right;
+        }
+
+        /* Estilo para tablas específicas */
+        .meta-table th, .meta-table td {
+            text-align: center;
+            padding: 12px 15px;
+        }
+
+        .objetivos-table th {
+            text-align: center;
+            background-color: #0099cc;
+            color: white;
+            padding: 12px 15px;
+        }
+
+        .objetivos-table td {
+            padding: 15px;
+            vertical-align: top;
+        }
+
+        .objetivos-table textarea {
+            width: 100%;
+            min-height: 100px;
+            margin: 5px 0;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            resize: vertical;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .objetivos-table textarea:focus {
+            border-color: #0099cc;
+            box-shadow: 0 0 0 3px rgba(0, 153, 204, 0.2);
+            outline: none;
         }
 
         /* Barra de progreso en pasos */
@@ -53,12 +241,13 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
             width: 100%;
             max-width: 900px;
             margin: 20px 0;
+            align-items: center;
         }
 
         .progress-step {
             width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
 
@@ -90,255 +279,130 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
         .step-line.active {
             background-color: #0099cc;
         }
-
-        /* Contenedor principal */
-        .container {
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.4s ease;
-            margin-bottom: 80px; /* Para que los botones no se superpongan */
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        header, footer {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .indice {
-            background-color: #ff7f7f;
-            color: white;
-            padding: 5px 10px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        h1 {
-            background-color: #0099cc;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-size: 2em;
-        }
-
-        .content {
-            margin-top: 20px;
-        }
-
-        .objetivos-info, .uen-info {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
-
-        .piramide {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #0099cc;
-            color: white;
-        }
-
-        .meta-table, .objetivos-table {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .meta-table th, .objetivos-table th {
-            background-color: #808080;
-            color: white;
-        }
-
-        .meta-table td {
-            background-color: #f8f8f8;
-        }
-
-        .objetivos-table td {
-            height: 50px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            font-size: 1.1em;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            background-color: #f9f9f9;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            resize: none;
-            transition: all 0.3s ease;
-        }
-
-        textarea:focus {
-            border-color: #0099cc;
-            background-color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 153, 204, 0.2);
-            outline: none;
-        }
-
+        /* Botones de navegación */
         .nav-button {
-            display: inline-block;
-            padding: 10px 20px;
             background-color: #0099cc;
             color: white;
-            text-decoration: none;
-            margin-top: 20px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
             font-size: 1em;
-            transition: background-color 0.3s ease;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
+            text-align: center;
+            margin: 0 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .nav-button:hover {
             background-color: #007ba7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        /* Responsive */
+        /* Estilos para listas */
+        ul, ol {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        /* Contenido informativo */
+        .objetivos-info, .uen-info {
+            background-color: #f8fafc;
+            border-left: 4px solid #0099cc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Imagen de la pirámide */
+        .piramide {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Mensajes de éxito y error */
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .success-message {
+            background-color: #def7ec;
+            color: #03543f;
+            border: 1px solid #84e1bc;
+        }
+
+        .error-message {
+            background-color: #fde8e8;
+            color: #9b1c1c;
+            border: 1px solid #f8b4b4;
+        }
+
+        /* Responsividad */
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
-
-            .progress-container {
-                margin: 10px;
+                padding: 20px;
+                margin: 20px 10px;
             }
 
             table {
-                font-size: 0.9em;
+                display: block;
+                overflow-x: auto;
             }
 
-            .meta-table, .objetivos-table {
-                font-size: 0.9em;
+            th, td {
+                min-width: 120px;
             }
 
-            textarea {
-                font-size: 1em;
-                height: 80px;
+            .progress-container {
+                flex-direction: column;
+                align-items: center;
             }
 
-            footer {
-                position: fixed;
-                bottom: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 100%;
-                display: flex;
-                justify-content: center;
-                padding: 10px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                background-color: #fff;
-                z-index: 10;
-            }
-
-            footer .nav-button {
-                margin: 0 5px;
+            .step-line {
+                display: none;
             }
         }
 
-        @media (max-width: 480px) {
-            .nav-button {
-                font-size: 0.9em;
-                padding: 8px 15px;
-            }
+        /* Estilo para los botones de navegación al final del formulario */
+        .form-navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
         }
 
-        
-
-
-            /* Estilo para los botones de navegación */
-    .navigation-buttons {
-        position: fixed;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        z-index: 9999; /* Asegurarse de que esté por encima de otros contenidos */
-        padding: 10px;
-        background-color: #fff; /* Fondo blanco para que no se mezcle con el contenido */
-        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil para que se distinga */
-    }
-
-    .nav-button {
-        background-color: #0099cc;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 5px;
-        font-size: 1.1em;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    .nav-button i {
-        font-size: 1.2em; /* Icono un poco más grande */
-    }
-
-    .nav-button:hover {
-        background-color: #007ba7;
-        transform: translateY(-2px); /* Efecto sutil al pasar el ratón */
-    }
-
-    .nav-button:active {
-        background-color: #005f7a;
-        transform: translateY(0); /* Efecto al hacer clic */
-    }
-
-    /* Para pantallas más pequeñas */
-    @media (max-width: 768px) {
-        .nav-button {
+        .form-navigation-buttons .nav-button {
+            padding: 10px 20px;
+            background-color: #007ba7;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
             font-size: 1em;
-            padding: 10px 15px;
+            transition: background-color 0.3s ease;
         }
 
-        .navigation-buttons {
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            gap: 5px;
+        .form-navigation-buttons .nav-button:hover {
+            background-color: #0099cc;
         }
-    }
 
     </style>
 </head>
 <body>
-
     <!-- Barra de progreso en pasos -->
     <div class="progress-container">
         <div class="progress-step">
@@ -346,10 +410,10 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
             <div class="step-line active"></div>
             <div class="step completed">2</div>
             <div class="step-line active"></div>
-            <div class="step">3</div>
-            <div class="step-line"></div>
-            <div class="step">4</div>
-            <div class="step-line"></div>
+            <div class="step completed">3</div>
+            <div class="step-line active"></div>
+            <div class="step completed">4</div>
+            <div class="step-line active"></div>
             <div class="step">5</div>
             <div class="step-line"></div>
             <div class="step">6</div>
@@ -361,11 +425,8 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
     </div>
 
     <div class="container">
-       
-
         <main>
             <h1>4. OBJETIVOS ESTRATÉGICOS</h1>
-
             <div class="content">
                 <div class="objetivos-info">
                     <p>El siguiente paso es establecer los objetivos de una empresa en relación al sector al que pertenece.</p>
@@ -447,52 +508,69 @@ $objetivos_especificos = $documento['objetivos_especificos'] ?? [2 => ['', ''], 
                 <h2>Definición de Objetivos</h2>
                 <p>A continuación reflexione sobre la misión, visión y valores definidos y establezca los objetivos estratégicos y específicos de su empresa. Le proponemos que comience con definir 3 objetivos estratégicos y dos específicos para cada uno de ellos.</p>
 
-                <form action="../logica/logicaObjetivos.php" method="post">
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                    <table class="objetivos-table">
-                        <tr>
-                            <th>MISIÓN</th>
-                            <th>OBJETIVOS GENERALES O ESTRATÉGICOS</th>
-                            <th>OBJETIVOS ESPECÍFICOS</th>
-                        </tr>
-                        <tr>
-                            <td rowspan="3"><textarea name="mision" required><?php echo htmlspecialchars($mision); ?></textarea></td>
-                            <td><textarea name="objetivo_general_1" required><?php echo htmlspecialchars($objetivos_generales[0]); ?></textarea></td>
-                            <td>
-                                <textarea name="objetivo_especifico_1_1" required><?php echo htmlspecialchars($objetivos_especificos[2][0]); ?></textarea>
-                                <textarea name="objetivo_especifico_1_2" required><?php echo htmlspecialchars($objetivos_especificos[2][1]); ?></textarea>
-                            </td>
-                        </tr>
-                        <?php
-                        for ($i = 1; $i < 3; $i++) {
-                            echo "<tr>
-                                    <td><textarea name='objetivo_general_" . ($i + 1) . "' required>" . htmlspecialchars($objetivos_generales[$i]) . "</textarea></td>
-                                    <td>
-                                        <textarea name='objetivo_especifico_" . ($i + 1) . "_1' required>" . htmlspecialchars($objetivos_especificos[$i + 2][0]) . "</textarea>
-                                        <textarea name='objetivo_especifico_" . ($i + 1) . "_2' required>" . htmlspecialchars($objetivos_especificos[$i + 2][1]) . "</textarea>
-                                    </td>
-                                  </tr>";
-                        }
-                        ?>
-                    </table>
-                    <button type="submit" class="nav-button">Guardar los Cambios</button>
-                </form>
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="success-message">
+                <?php echo htmlspecialchars($_SESSION['success_message']); unset($_SESSION['success_message']); ?>
             </div>
-        </main>
-    </div>
+        <?php endif; ?>
 
-    <!-- Botones de navegación en la parte inferior -->
-    <div class="navigation-buttons">
-        <button class="nav-button" onclick="window.location.href='index.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
-            <i class="fas fa-home"></i> INDICE
-        </button>
-        <button class="nav-button" onclick="window.location.href='valores.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
-            <i class="fas fa-hand-holding-heart icon"></i> 3. VALORES
-        </button>
-        <button class="nav-button" onclick="window.location.href='analisis.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">
-            <i class="fas fa-chart-line icon"></i> 5. ANALISIS INTERNO Y EXTERNO
-        </button>
-    </div>
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div class="error-message">
+                <?php echo htmlspecialchars($_SESSION['error_message']); unset($_SESSION['error_message']); ?>
+            </div>
+        <?php endif; ?>
 
+        <form action="objetivos.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>" method="post">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            <table class="objetivos-table">
+                <tr>
+                    <th>MISIÓN</th>
+                    <th>OBJETIVOS GENERALES O ESTRATÉGICOS</th>
+                    <th>OBJETIVOS ESPECÍFICOS</th>
+                </tr>
+                <tr>
+                    <td rowspan="3">
+                        <textarea name="mision" readonly><?php echo htmlspecialchars($mision); ?></textarea>
+                        <?php if (empty($mision)): ?>
+                            <div class="error-message">Primero debe completar su misión en el paso 1.</div>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <textarea name="objetivo_general_1" required placeholder="Aquí va el objetivo general"><?php echo htmlspecialchars($objetivos_generales[0]); ?></textarea>
+                    </td>
+                    <td>
+                        <textarea name="objetivo_especifico_1_1" required placeholder="Aquí debe completar los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[0][0]); ?></textarea>
+                        <textarea name="objetivo_especifico_1_2" required placeholder="Aquí debe completar los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[0][1]); ?></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea name="objetivo_general_2" required placeholder="Aquí va el objetivo general"><?php echo htmlspecialchars($objetivos_generales[1]); ?></textarea>
+                    </td>
+                    <td>
+                        <textarea name="objetivo_especifico_2_1" required placeholder="Aquí debe completar los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[1][0]); ?></textarea>
+                        <textarea name="objetivo_especifico_2_2" required placeholder="Aquí debe completar los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[1][1]); ?></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea name="objetivo_general_3" required placeholder="Aquí va el objetivo general"><?php echo htmlspecialchars($objetivos_generales[2]); ?></textarea>
+                    </td>
+                    <td>
+                        <textarea name="objetivo_especifico_3_1" required placeholder="Aquí debe completar los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[2][0]); ?></textarea>
+                        <textarea name="objetivo_especifico_3_2" required placeholder="Aquí debe completar los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[2][1]); ?></textarea>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Botones de navegación al final -->
+            <div class="form-navigation-buttons">
+                <button type="submit" class="nav-button">Guardar los Cambios</button>
+                <div>
+                    <a href="mision.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">Anterior</a>
+                    <a href="vision.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>" class="nav-button">Siguiente</a>
+                </div>
+            </div>
+        </form>
+    </div>
 </body>
-</html>
