@@ -45,17 +45,17 @@
         }
 
         .image-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 10px;
-            margin: 20px auto;
-            width: 60%;
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
         }
 
         .image-container img {
             width: 100%;
+            max-width: 400px;
             height: auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
         }
 
         .table-container {
@@ -134,10 +134,7 @@
             </p>
 
             <div class="image-container">
-                <img src="img/incognita.png" alt="Incógnita">
-                <img src="img/estrella.png" alt="Estrella">
-                <img src="img/vaca.png" alt="Vaca">
-                <img src="img/perro.png" alt="Perro">
+                <img src="img/cuadromt.png" alt="Matriz de Crecimiento - Participación BCG">
             </div>
         </div>
 
