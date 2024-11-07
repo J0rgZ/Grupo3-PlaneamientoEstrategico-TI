@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
     // Verificar el token CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $_SESSION['error_message'] = "Token CSRF inválido.";
-        header("Location: ../presentacion/valores.php");
+        header("Location: ../presentacion/valores.php?plan_id=" . urlencode($_POST['plan_id']));
         exit();
     }
 
@@ -70,19 +70,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
         echo json_encode(['success' => 'Valores guardados exitosamente.']);
     } else {
         // Solicitud normal, redirigir según la acción seleccionada
+        $plan_id_encoded = urlencode($plan_id);
         switch ($accion) {
             case 'index':
-                header("Location: ../presentacion/index.php");
+                header("Location: ../presentacion/index.php?plan_id=$plan_id_encoded");
                 exit();
             case 'vision':
-                header("Location: ../presentacion/vision.php");
+                header("Location: ../presentacion/vision.php?plan_id=$plan_id_encoded");
                 exit();
             case 'resumen':
-                header("Location: ../presentacion/resumen.php");
+                header("Location: ../presentacion/resumen.php?plan_id=$plan_id_encoded");
                 exit();
             default:
                 // Redirigir a una página por defecto si la acción no coincide
-                header("Location: ../presentacion/index.php");
+                header("Location: ../presentacion/index.php?plan_id=$plan_id_encoded");
                 exit();
         }
     }
@@ -92,3 +93,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
     header("Location: ../presentacion/valores.php");
     exit();
 }
+?>
