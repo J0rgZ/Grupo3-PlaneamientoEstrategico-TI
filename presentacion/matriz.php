@@ -41,17 +41,20 @@
         .content {
             margin-top: 10px;
             line-height: 1.6;
+            text-align: center;
         }
 
         .image-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px auto;
+            width: 60%;
         }
 
         .image-container img {
-            width: 80px;
+            width: 100%;
             height: auto;
         }
 
@@ -82,15 +85,15 @@
 
         .buttons {
             display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
+            justify-content: space-around;
+            margin-top: 20px;
         }
 
         .buttons .nav-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 48%;
+            width: 45%;
             padding: 10px;
             font-size: 1em;
             color: #fff;
