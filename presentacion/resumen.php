@@ -272,7 +272,7 @@ if ($plan_id) {
         </table>
 
         <!-- Mostrar la Misión -->
-        <div class="form-section">
+        <div class="form-section"><BR>
             <h2>Misión</h2>
             <div class="input-section">
                 <?php echo nl2br(htmlspecialchars($mision_usuario)); ?>
@@ -280,7 +280,7 @@ if ($plan_id) {
         </div>
 
         <!-- Mostrar la Visión -->
-        <div class="form-section">
+        <div class="form-section"><BR>
             <h2>Visión</h2>
             <div class="input-section">
                 <?php echo nl2br(htmlspecialchars($vision_usuario)); ?>
@@ -288,7 +288,7 @@ if ($plan_id) {
         </div>
 
 <!-- Mostrar los Valores -->
-<div class="form-section">
+<div class="form-section"><BR>
     <h2>Valores</h2>
     <div class="input-section">
         <?php
