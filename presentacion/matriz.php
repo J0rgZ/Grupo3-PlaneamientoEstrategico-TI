@@ -134,7 +134,7 @@
             </p>
 
             <div class="image-container">
-                <img src="img/cuadromt.png" alt="Matriz de Crecimiento - Participación BCG">
+                <img src="../img/cuadromt.png" alt="Matriz de Crecimiento - Participación BCG">
             </div>
         </div>
 
