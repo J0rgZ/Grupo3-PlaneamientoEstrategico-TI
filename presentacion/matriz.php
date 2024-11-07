@@ -132,10 +132,10 @@
             </p>
 
             <div class="image-container">
-                <img src="incognita.png" alt="Incógnita">
-                <img src="estrella.png" alt="Estrella">
-                <img src="vaca.png" alt="Vaca">
-                <img src="perro.png" alt="Perro">
+                <img src="images/incognita.png" alt="Incógnita">
+                <img src="images/estrella.png" alt="Estrella">
+                <img src="images/vaca.png" alt="Vaca">
+                <img src="images/perro.png" alt="Perro">
             </div>
         </div>
 
