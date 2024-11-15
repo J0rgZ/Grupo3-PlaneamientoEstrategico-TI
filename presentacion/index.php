@@ -188,6 +188,18 @@ $user_name = $_SESSION['username'] ?? 'Usuario'; // Nombre del usuario
                 <button class="nav-button" onclick="window.location.href='matriz.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
                     <i class="fas fa-th icon"></i> 7. MATRIZ PARTICIPACIÓN
                 </button>
+                <button class="nav-button" onclick="window.location.href='porter.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
+                    <i class="fas fa-briefcase icon"></i> 8. LAS 5 FUERZAS DE PORTER
+                </button>
+                <button class="nav-button" onclick="window.location.href='pest.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
+                    <i class="fas fa-globe-americas icon"></i> 9. PEST
+                </button>
+                <button class="nav-button" onclick="window.location.href='identificacion.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
+                    <i class="fas fa-search icon"></i> 10. IDENTIFICACIÓN ESTRATÉGICA
+                </button>
+                <button class="nav-button" onclick="window.location.href='came.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
+                    <i class="fas fa-cogs icon"></i> 11. MATRIZ CAME
+                </button>
             </div>
 
             <button class="long-button" style="margin-top: 30px;" onclick="window.location.href='resumen.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
