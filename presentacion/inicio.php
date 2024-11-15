@@ -34,8 +34,23 @@ if (isset($_POST['agregar'])) {
             'objetivos_especificos' => [['', ''], ['', ''], ['', '']],
             'preguntas' => [],
             'fortalezas' => [],
-            'debilidades' => []
-        ]);
+            'debilidades' => [],
+            "pest_analysis" => [
+                "politicos" => "",
+                "economicos" => "",
+                "sociales" => "",
+                "tecnologicos" => "",
+            ],
+            "pest_autodiagnostico" => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "pest_oportunidades" => [
+                "O3" => "",
+                "O4" => ""
+            ],
+            "pest_amenazas" => [
+                "A3" => "",
+                "A4" => ""
+            ]
+        ]);        
         header("Location: inicio.php");
         exit();
     }
@@ -246,4 +261,3 @@ date_default_timezone_set('America/Bogota');
     </script>
 </body>
 </html>
-
