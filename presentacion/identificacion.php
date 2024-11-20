@@ -59,19 +59,23 @@ $valores = (array)$user_diagnostico['valores'] ?? array_fill(0, 25, 0);
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                    </tr>
                     <?php for ($i = 0; $i < 4; $i++): ?>
+                        <tr>
+                            <td>
+                                <input type="text" name="debilidad_<?php echo $i; ?>" 
+                                    value="<?php echo htmlspecialchars($debilidades[$i]); ?>" 
+                                    oninput="guardarValor('debilidad', <?php echo $i; ?>, this.value)" 
+                                    class="input-field">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" name="amenaza_<?php echo $i; ?>" 
+                                    value="<?php echo htmlspecialchars($amenazas[$i]); ?>" 
+                                    oninput="guardarValor('amenaza', <?php echo $i; ?>, this.value)" 
+                                    class="input-field">
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <input type="text" name="fortaleza_<?php echo $i; ?>" 
@@ -80,13 +84,15 @@ $valores = (array)$user_diagnostico['valores'] ?? array_fill(0, 25, 0);
                                     class="input-field">
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <input type="text" name="oportunidad_<?php echo $i; ?>" 
+                                    value="<?php echo htmlspecialchars($oportunidades[$i]); ?>" 
+                                    oninput="guardarValor('oportunidad', <?php echo $i; ?>, this.value)" 
+                                    class="input-field">
+                            </td>
+                        </tr>
                 <?php endfor; ?>
-                    <tr>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                    </tr>
                 </tbody>
             </table>
         </div>
