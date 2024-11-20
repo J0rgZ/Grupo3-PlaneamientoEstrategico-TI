@@ -90,219 +90,88 @@ $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 
     </tbody>
 </table>
 
-        </div>
+    <form method="POST" action="">
+            <?php
+            // Definir matrices
+            $matrices = [
+                "fortalezas_oportunidades" => [
+                    "title" => "Matriz Fortalezas vs Oportunidades",
+                    "description" => "Las fortalezas se usan para tomar ventaja en cada una las oportunidades.",
+                    "rows" => ["F1", "F2", "F3", "F4"],
+                    "cols" => ["O1", "O2", "O3", "O4"]
+                ],
+                "fortalezas_amenazas" => [
+                    "title" => "Matriz Fortalezas vs Amenazas",
+                    "description" => "Las fortalezas evaden el efecto negativo de las amenazas.",
+                    "rows" => ["F1", "F2", "F3", "F4"],
+                    "cols" => ["A1", "A2", "A3", "A4"]
+                ],
+                "debilidades_oportunidades" => [
+                    "title" => "Matriz Debilidades vs Oportunidades",
+                    "description" => "Superamos las debilidades tomando ventaja de las oportunidades.",
+                    "rows" => ["D1", "D2", "D3", "D4"],
+                    "cols" => ["O1", "O2", "O3", "O4"]
+                ],
+                "debilidades_amenazas" => [
+                    "title" => "Matriz Debilidades vs Amenazas",
+                    "description" => "Las debilidades intensifican notablemente el efecto negativo de las amenazas.",
+                    "rows" => ["D1", "D2", "D3", "D4"],
+                    "cols" => ["A1", "A2", "A3", "A4"]
+                ]
+            ];
 
-            <div class="matriz-fortalezas-oportunidades">
-            <h2>Matriz Fortalezas vs Oportunidades</h2>
-            <p>Las fortalezas se usan para tomar ventaja en cada una las oportunidades.<br>0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fortalezas</th>
-                        <th>O1</th>
-                        <th>O2</th>
-                        <th>O3</th>
-                        <th>O4</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>F1</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>F2</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>F3</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>F4</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>Total</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            // Procesar totales para todas las tablas si se envió el formulario
+            $totals = [];
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                foreach ($matrices as $matrixKey => $matrix) {
+                    $totals[$matrixKey] = array_fill(0, count($matrix['cols']), 0);
+                    if (isset($_POST[$matrixKey])) {
+                        foreach ($_POST[$matrixKey] as $row) {
+                            foreach ($row as $colIndex => $value) {
+                                $colNum = (int)filter_var($colIndex, FILTER_SANITIZE_NUMBER_INT) - 1;
+                                $totals[$matrixKey][$colNum] += (int)$value;
+                            }
+                        }
+                    }
+                }
+            }
 
-        <div class="matriz-fortalezas-amenazas">
-            <h2>Matriz Fortalezas vs Amenazas</h2>
-            <p>Las fortalezas evaden el efecto negativo de las amenazas.<br>0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fortalezas</th>
-                        <th>A1</th>
-                        <th>A2</th>
-                        <th>A3</th>
-                        <th>A4</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>F1</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>F2</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>F3</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>F4</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>Total</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            // Renderizar tablas
+            foreach ($matrices as $matrixKey => $matrix) {
+                echo "<div class='matriz'>";
+                echo "<h2>{$matrix['title']}</h2>";
+                echo "<p>{$matrix['description']}<br>0=En total desacuerdo, 1=No está de acuerdo, 2=Está de acuerdo, 3=Bastante de acuerdo, 4=En total acuerdo</p>";
+                echo "<table border='0'>";
+                echo "<thead><tr><th>{$matrix['rows'][0]}</th>";
+                foreach ($matrix['cols'] as $col) {
+                    echo "<th>{$col}</th>";
+                }
+                echo "</tr></thead>";
+                echo "<tbody>";
 
-        <div class="matriz-debilidades-oportunidades">
-            <h2>Matriz Debilidades vs Oportunidades</h2>
-            <p>Superamos las debilidades tomando ventaja de las oportunidades.<br>0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Debilidades</th>
-                        <th>O1</th>
-                        <th>O2</th>
-                        <th>O3</th>
-                        <th>O4</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>D1</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>D2</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>D3</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>D4</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>Total</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                foreach ($matrix['rows'] as $rowIndex => $row) {
+                    echo "<tr>";
+                    echo "<td>{$row}</td>";
+                    foreach ($matrix['cols'] as $colIndex => $col) {
+                        $value = $_POST[$matrixKey][$rowIndex][$col] ?? 0;
+                        echo "<td><input type='number' name='{$matrixKey}[{$rowIndex}][{$col}]' min='0' max='4' value='{$value}'></td>";
+                    }
+                    echo "</tr>";
+                }
 
-        <div class="matriz-debilidades-amenazas">
-            <h2>Matriz Debilidades vs Amenazas</h2>
-            <p>Las debilidades intensifican notablemente el efecto negativo de las amenazas.<br>0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Debilidades</th>
-                        <th>A1</th>
-                        <th>A2</th>
-                        <th>A3</th>
-                        <th>A4</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>D1</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>D2</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>D3</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>D4</td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                        <td><input type="number" min="0" max="4"></td>
-                    </tr>
-                    <tr>
-                        <td>Total</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                echo "<tr><td>Total</td>";
+                foreach ($matrix['cols'] as $colIndex => $col) {
+                    $total = $totals[$matrixKey][$colIndex] ?? 0;
+                    echo "<td>{$total}</td>";
+                }
+                echo "</tr>";
+
+                echo "</tbody></table>";
+                echo "</div>";
+            }
+            ?>
+            <button type="submit">Calcular Totales</button>
+        </form>
 
             <div class="sintesis-resultados">
             <h2>Síntesis de Resultados</h2>
