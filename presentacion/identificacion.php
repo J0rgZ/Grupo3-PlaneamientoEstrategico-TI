@@ -1,3 +1,32 @@
+<?php
+require '../datos/conexion.php'; // Ajusta la ruta si es necesario
+
+session_start();
+if (isset($_POST['logout'])) {
+    session_destroy();
+    header("Location: login.php"); // Redirige a la página de inicio de sesión
+    exit();
+}
+// Verifica si el usuario está logeado (por ejemplo, a través de una sesión)
+if (!isset($_SESSION['user_id'])) {
+    die("No estás autenticado.");
+}
+$plan_id = $_GET['plan_id'] ?? '';
+
+$user_id = $_SESSION['user_id'];
+$collection = $db->diagnosticos;
+
+// Obtener los datos guardados del usuario
+$user_diagnostico = $collection->findOne(['user_id' => $user_id]);
+
+// Valores de valoraciones, fortalezas y debilidades
+$valores = $user_diagnostico['valores'] ?? array_fill(0, 25, 0); // 25 preguntas
+$fortalezas = (array)($user_diagnostico['fortalezas'] ?? array_fill(0, 4, ''));
+$debilidades = (array)($user_diagnostico['debilidades'] ?? array_fill(0, 4, ''));
+$valores = (array)$user_diagnostico['valores'] ?? array_fill(0, 25, 0);
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -42,12 +71,16 @@
                         <td><input type="text"></td>
                         <td><input type="text"></td>
                     </tr>
-                    <tr>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                    </tr>
+                    <?php for ($i = 0; $i < 4; $i++): ?>
+                        <tr>
+                            <td>
+                                <input type="text" name="fortaleza_<?php echo $i; ?>" 
+                                    value="<?php echo htmlspecialchars($fortalezas[$i]); ?>" 
+                                    oninput="guardarValor('fortaleza', <?php echo $i; ?>, this.value)" 
+                                    class="input-field">
+                            </td>
+                        </tr>
+                <?php endfor; ?>
                     <tr>
                         <td><input type="text"></td>
                         <td><input type="text"></td>
