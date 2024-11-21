@@ -120,7 +120,7 @@ $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 
                 ]
             ];
 
-            // Procesar totales para todas las tablas si se envió el formulario
+            // Procesar totales para todas las tablas si se envío el formulario
             $totals = [];
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 foreach ($matrices as $matrixKey => $matrix) {
@@ -175,6 +175,13 @@ $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 
 
             <div class="sintesis-resultados">
             <h2>Síntesis de Resultados</h2>
+            <?php
+            // Calcular puntajes para la síntesis de resultados
+            $puntaje_fo = array_sum($totals['fortalezas_oportunidades'] ?? []);
+            $puntaje_fa = array_sum($totals['fortalezas_amenazas'] ?? []);
+            $puntaje_do = array_sum($totals['debilidades_oportunidades'] ?? []);
+            $puntaje_da = array_sum($totals['debilidades_amenazas'] ?? []);
+            ?>
             <table>
                 <thead>
                     <tr>
@@ -188,33 +195,31 @@ $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 
                     <tr>
                         <td>FO</td>
                         <td>Estrategia Ofensiva</td>
-                        <td><input type="number" min="0" max="4"></td>
+                        <td><input type="number" value="<?php echo $puntaje_fo; ?>" readonly></td>
                         <td>Deberá adoptar estrategias de crecimiento</td>
                     </tr>
                     <tr>
                         <td>AF</td>
                         <td>Estrategia Defensiva</td>
-                        <td><input type="number" min="0" max="4"></td>
+                        <td><input type="number" value="<?php echo $puntaje_fa; ?>" readonly></td>
                         <td>La empresa está preparada para enfrentarse a las amenazas</td>
                     </tr>
                     <tr>
                         <td>AD</td>
                         <td>Estrategia de Supervivencia</td>
-                        <td><input type="number" min="0" max="4"></td>
+                        <td><input type="number" value="<?php echo $puntaje_da; ?>" readonly></td>
                         <td>Se enfrenta a amenazas externas sin las fortalezas necesarias para luchar con la competencia</td>
                     </tr>
                     <tr>
                         <td>OD</td>
                         <td>Estrategia de Reorientación</td>
-                        <td><input type="number" min="0" max="4"></td>
+                        <td><input type="number" value="<?php echo $puntaje_do; ?>" readonly></td>
                         <td>La empresa no puede aprovechar las oportunidades porque carece de preparación adecuada</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         </div>
-
-        
 
         <div class="navigation-buttons">
             <button class="nav-button" onclick="window.location.href='pest.php'">9. PEST</button>
