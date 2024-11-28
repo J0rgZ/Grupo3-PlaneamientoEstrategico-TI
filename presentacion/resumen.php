@@ -1,71 +1,86 @@
 <?php
-// Iniciar sesión
 session_start();
 
-// Verificar si el usuario está autenticado
+// Verificar si el usuario está logueado
 if (!isset($_SESSION['user_id'])) {
-    die("No estás autenticado.");
+    header("Location: ../login.php");
+    exit();
 }
 
-// Obtener el ID del usuario logeado
-$user_id = $_SESSION['user_id'];
-
-// Obtener el plan_id desde la URL (si está disponible)
-$plan_id = $_GET['plan_id'] ?? '';
-
 // Incluir el archivo de conexión a MongoDB
-require '../datos/conexion.php'; // Ajusta la ruta si es necesario
+require '../datos/conexion.php';
+
+// Generar un token CSRF si no existe
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Inicializar las variables
-$mision_usuario = '';
-$vision_usuario = '';
-$valores_usuario = [];
+$mision_usuario = "";
+$vision_usuario = "";
+$valores_usuario = "";
+$plan_id = $_GET['plan_id'] ?? '';
 
-// Obtener los valores del usuario (nombre de la empresa, fecha de elaboración, etc.)
-$collection = $db->valores;
-$valores_usuario = $collection->findOne(['user_id' => $user_id]);
+// Recuperar los datos del plan desde MongoDB
+try {
+    $collection = $db->planes;
 
-// Asegurarse de que tenemos un plan_id y luego recuperar los campos desde la base de datos
-if ($plan_id) {
-    try {
-        $collection = $db->planes;
+    // Buscar el plan con el plan_id y user_id correspondiente
+    $documento = $collection->findOne([
+        '_id' => new MongoDB\BSON\ObjectId($plan_id),
+        'user_id' => $_SESSION['user_id']
+    ]);
 
-        // Buscar el plan en la base de datos
-        $documento = $collection->findOne(['_id' => new MongoDB\BSON\ObjectId($plan_id), 'user_id' => $user_id]);
+    // Verificar si se encontró el documento y si contiene los campos
+    if ($documento) {
+        $mision_usuario = $documento['mision'] ?? '';
+        $vision_usuario = $documento['vision'] ?? '';
+        $valores_usuario = $documento['valores'] ?? '';
+        // Recuperar los objetivos desde MongoDB
+        $objetivos_generales = $documento['objetivos_generales'] ?? [];
+        $objetivos_especificos = $documento['objetivos_especificos'] ?? [];
+        
 
-        // Si se encuentra el documento, asignar los campos
-        if ($documento) {
-            // Asignar la misión si existe
-            if (isset($documento['mision'])) {
-                $mision_usuario = $documento['mision'];
+    } else {
+        // Si no se encontró el documento, inicializamos las variables vacías
+        $mision_usuario = $vision_usuario = $valores_usuario = "";
+
+    }
+} catch (Exception $e) {
+    error_log("Error al recuperar datos: " . $e->getMessage());
+    $_SESSION['error_message'] = "Error: " . $e->getMessage();
+}
+
+// Manejar el envío del formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nueva_mision = $_POST['mision'] ?? '';
+    $nueva_vision = $_POST['vision'] ?? '';
+    $nuevos_valores = $_POST['valores'] ?? '';
+
+    if ($nueva_mision || $nueva_vision || $nuevos_valores) {
+        try {
+            $result = $collection->updateOne(
+                ['_id' => new MongoDB\BSON\ObjectId($plan_id)],
+                ['$set' => [
+                    'mision' => $nueva_mision,
+                    'vision' => $nueva_vision,
+                    'valores' => $nuevos_valores,
+                    'fecha_modificacion' => new MongoDB\BSON\UTCDateTime()
+                ]]
+            );
+
+            if ($result->getModifiedCount() > 0) {
+                $_SESSION['success_message'] = "Datos actualizados exitosamente.";
             } else {
-                $mision_usuario = '[Misión no encontrada]';
+                $_SESSION['error_message'] = "No se realizaron cambios.";
             }
-
-            // Asignar la visión si existe
-            if (isset($documento['vision'])) {
-                $vision_usuario = $documento['vision'];
-            } else {
-                $vision_usuario = '[Visión no encontrada]';
-            }
-
-            // Asignar los valores si existen
-            if (isset($documento['valores'])) {
-                $valores_usuario['valores'] = $documento['valores'];
-            } else {
-                $valores_usuario['valores'] = '[Valores no encontrados]';
-            }
-        } else {
-            // Si no se encuentra el documento, mostrar un mensaje
-            $mision_usuario = '[Misión no encontrada]';
-            $vision_usuario = '[Visión no encontrada]';
-            $valores_usuario['valores'] = '[Valores no encontrados]';
+        } catch (Exception $e) {
+            error_log("Error al actualizar datos: " . $e->getMessage());
+            $_SESSION['error_message'] = "Ocurrió un error al actualizar los datos. Por favor, intenta nuevamente.";
         }
-    } catch (Exception $e) {
-        error_log("Error al recuperar el plan: " . $e->getMessage());
-        $mision_usuario = '[Error al obtener la misión]';
-        $vision_usuario = '[Error al obtener la visión]';
-        $valores_usuario['valores'] = '[Error al obtener los valores]';
+
+        header("Location: mision.php?plan_id=$plan_id");
+        exit();
     }
 }
 ?>
@@ -75,254 +90,308 @@ if ($plan_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumen Ejecutivo del Plan Estratégico</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Resumen Ejecutivo del Plan Estratégico</title>
     <style>
-        /* Estilos Generales */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            background-color: #f4f6f9;
         }
 
-        /* Contenedor de contenido */
-        .valores-container {
-            width: 90%;
-            max-width: 1000px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
             padding: 30px;
-            margin: 10px auto;
-            animation: fadeIn 0.4s ease;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .valores-header {
-            background-color: #0099cc;
-            color: #fff;
-            padding: 15px;
-            border-radius: 8px;
+        .logo {
             text-align: center;
-            font-size: 1.6em;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 150px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #3f51b5;
+            font-size: 28px;
             margin-bottom: 20px;
         }
 
-        /* Tabla y estilo de datos */
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        table td, table th {
+        .section-title {
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #3f51b5;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #333;
+            background-color: #fafafa;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .input-group input, .input-group textarea {
+            font-size: 15px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .actions-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .actions-list input {
             padding: 12px;
             border: 1px solid #ddd;
-            text-align: left;
-        }
-
-        table th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-        }
-
-        /* Estilos de campos de entrada */
-        .input-section {
-            background-color: #f9f9f9;
-            padding: 10px;
             border-radius: 8px;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            color: #333;
+            background-color: #fafafa;
         }
 
-        /* Botones de navegación */
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
-        }
-
-        button {
-            background-color: #0099cc;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #007ba7;
-            transform: translateY(-2px);
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
-        }
-
-        .footer p {
-            margin: 10px 0;
-        }
-                /* Barra de progreso en pasos */
-                .progress-container {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            max-width: 900px;
-            margin: 20px 0;
-            margin-left: 190px;
-        }
-
-        .progress-step {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .step {
-            width: 30px;
-            height: 30px;
-            background-color: #d1d1d1;
+        .button {
+            padding: 12px 20px;
+            font-size: 16px;
             color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            background-color: #3f51b5;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
-        .step.completed {
-            background-color: #0099cc;
+        .button:hover {
+            background-color: #303f9f;
         }
 
-        .step-line {
-            flex: 1;
-            height: 4px;
-            background-color: #d1d1d1;
-            margin: 0 10px;
-            transition: background-color 0.3s ease;
+        .section-title {
+            border-bottom: 2px solid #3f51b5;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
         }
 
-        .step-line.active {
-            background-color: #0099cc;
+        .container h1 {
+            font-family: 'Arial', sans-serif;
+            color: #3f51b5;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-<div class="container mt-4">
-        <!-- Barra de navegación de progreso -->
-        <div class="progress-container">
-        <div class="progress-step">
-            <div class="step">1</div>
-            <div class="step-line"></div>
-            <div class="step">2</div>
-            <div class="step-line"></div>
-            <div class="step">3</div>
-            <div class="step-line"></div>
-            <div class="step">4</div>
-            <div class="step-line"></div>
-            <div class="step">5</div>
-            <div class="step-line"></div>
-            <div class="step">6</div>
-            <div class="step-line"></div>
-            <div class="step">7</div>
-            <div class="step-line active"></div>
-            <div class="step completed">8</div>
+    <div class="container">
+        <h1>Resumen Ejecutivo del Plan Estratégico</h1>
 
-        </div>
-    </div>
-    <div class="valores-container">
-        <div class="valores-header">
-            <h1>Resumen Ejecutivo del Plan Estratégico</h1>
-        </div>
-
-        <table>
-            <tr>
-                <td><label>Nombre de la empresa / proyecto:</label></td>
-                <td><div class="input-section"><?php echo htmlspecialchars($valores_usuario['nombre_empresa'] ?? '[Nombre de la empresa]'); ?></div></td>
-            </tr>
-            <tr>
-                <td><label>Fecha de elaboración:</label></td>
-                <td><div class="input-section"><?php echo htmlspecialchars($valores_usuario['fecha_elaboracion'] ?? '[Fecha de elaboración]'); ?></div></td>
-            </tr>
-            <tr>
-                <td><label>Emprendedores / Promotores:</label></td>
-                <td><div class="input-section"><?php echo htmlspecialchars($valores_usuario['emprendedores'] ?? '[Emprendedores]'); ?></div></td>
-            </tr>
-        </table>
-
-        <!-- Mostrar la Misión -->
-        <div class="form-section"><BR>
-            <h2>Misión</h2>
-            <div class="input-section">
-                <?php echo nl2br(htmlspecialchars($mision_usuario)); ?>
+        <!-- Información General -->
+        <div class="section">
+            <div class="input-group">
+                <label for="empresa">Nombre de la empresa / proyecto:</label>
+                <input type="text" id="empresa" placeholder="Introduzca el nombre de la empresa / proyecto">
+            </div>
+            <div class="input-group">
+                <label for="fecha">Fecha de elaboración:</label>
+                <input type="date" id="fecha">
+            </div>
+            <div class="input-group">
+                <label for="emprendedores">Emprendedores / promotores:</label>
+                <input type="text" id="emprendedores" placeholder="Introduzca el/los nombre/s de el/los promotor/es">
             </div>
         </div>
 
-        <!-- Mostrar la Visión -->
-        <div class="form-section"><BR>
-            <h2>Visión</h2>
-            <div class="input-section">
-                <?php echo nl2br(htmlspecialchars($vision_usuario)); ?>
+        <!-- Misión, Visión, Valores -->
+        <div class="section">
+            <div class="section-title">MISIÓN, VISIÓN Y VALORES</div>
+            <div>
+                <label for="mision">MISIÓN</label>
+                <textarea id="mision" rows="4" placeholder="Escriba la misión del proyecto" name="mision" required><?php echo htmlspecialchars($mision_usuario); ?></textarea>
+            </div>
+
+            <div>
+                <label for="vision">VISIÓN</label>
+                <textarea id="vision" rows="4" placeholder="Escriba la visión del proyecto" name="vision"><?php echo htmlspecialchars($vision_usuario ?? ''); ?></textarea>
+                </div>
+
+            <div>
+                <label for="valores">VALORES</label>
+                <textarea id="valores" rows="4" placeholder="Escriba los valores de la empresa" name="valores"><?php echo htmlspecialchars($valores_usuario ?? ''); ?></textarea>
+                </div>
+        </div>
+
+        <!-- Unidades Estratégicas -->
+        <div class="section">
+            <div class="section-title">UNIDADES ESTRATÉGICAS</div>
+            <textarea id="unidades" rows="4" placeholder="Escriba las unidades estratégicas"></textarea>
+        </div>
+
+        <!-- Objetivos Estratégicos -->
+        <div class="section">
+    <div class="section-title">OBJETIVOS ESTRATÉGICOS</div>
+    <div class="three-column">
+        <div>
+            <label for="mision_obj">MISIÓN</label>
+            <textarea id="mision_obj" rows="32" placeholder="Escriba la misión relacionada con los objetivos"required><?php echo htmlspecialchars($mision_usuario); ?></textarea>
+        </div>
+
+        <div>
+            <label for="generales">Objetivos Generales o Estratégicos</label>
+            <textarea id="generales_1" rows="9" placeholder="Escriba los objetivos generales o estratégicos"><?php echo htmlspecialchars($objetivos_generales[0] ?? ''); ?></textarea>
+            <textarea id="generales_2" rows="9" placeholder="Escriba los objetivos generales o estratégicos"><?php echo htmlspecialchars($objetivos_generales[1] ?? ''); ?></textarea>
+            <textarea id="generales_3" rows="9" placeholder="Escriba los objetivos generales o estratégicos"><?php echo htmlspecialchars($objetivos_generales[2] ?? ''); ?></textarea>
+            </div>
+
+        <div>
+            <textarea id="especificos_1_1" rows="1" placeholder="Escriba los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[0][0] ?? ''); ?></textarea>
+            <textarea id="especificos_1_2" rows="1" placeholder="Escriba los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[0][1] ?? ''); ?></textarea>
+            <textarea id="especificos_2_1" rows="1" placeholder="Escriba los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[1][0] ?? ''); ?></textarea>
+            <textarea id="especificos_2_2" rows="1" placeholder="Escriba los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[1][1] ?? ''); ?></textarea>
+            <textarea id="especificos_3_1" rows="1" placeholder="Escriba los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[2][0] ?? ''); ?></textarea>
+            <textarea id="especificos_3_2" rows="1" placeholder="Escriba los objetivos específicos"><?php echo htmlspecialchars($objetivos_especificos[2][1] ?? ''); ?></textarea></div>
+        </div>
+    </div>
+
+
+    <form method="POST" action="">
+    <!-- Token CSRF (campo oculto) -->
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+
+    <!-- Tabla de análisis FODA -->
+    <div class="section">
+        <div class="section-title">ANÁLISIS FODA</div>
+        <div class="section-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Debilidades</th>
+                        <th>Amenazas</th>
+                        <th>Fortalezas</th>
+                        <th>Oportunidades</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php for ($i = 0; $i < 4; $i++): ?>
+                        <tr>
+                            <td>
+                                <input type="text" name="debilidad_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($debilidades[$i]); ?>" 
+                                       class="input-field" readonly>
+                            </td>
+                            <td>
+                                <input type="text" name="amenaza_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($amenazas[$i]); ?>" 
+                                       class="input-field" readonly>
+                            </td>
+                            <td>
+                                <input type="text" name="fortaleza_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($fortalezas[$i]); ?>" 
+                                       class="input-field" readonly>
+                            </td>
+                            <td>
+                                <input type="text" name="oportunidad_<?php echo $i; ?>" 
+                                       value="<?php echo htmlspecialchars($oportunidades[$i]); ?>" 
+                                       class="input-field" readonly>
+                            </td>
+                        </tr>
+                    <?php endfor; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+
+
+
+        <!-- Identificación de Estrategia -->
+        <div class="section">
+            <div class="section-title">IDENTIFICACIÓN DE ESTRATEGIA</div>
+            <textarea id="estrategia" rows="4" placeholder="Escriba la estrategia identificada en la Matriz FODA"></textarea>
+        </div>
+
+        <!-- Acciones Competitivas -->
+        <div class="section">
+            <div class="section-title">ACCIONES COMPETITIVAS</div>
+            <div class="actions-list">
+                <input type="text" placeholder="Acción 1">
+                <input type="text" placeholder="Acción 2">
+                <input type="text" placeholder="Acción 3">
+                <input type="text" placeholder="Acción 4">
+                <input type="text" placeholder="Acción 5">
+                <input type="text" placeholder="Acción 6">
+                <input type="text" placeholder="Acción 7">
+                <input type="text" placeholder="Acción 8">
+                <input type="text" placeholder="Acción 9">
+                <input type="text" placeholder="Acción 10">
+                <input type="text" placeholder="Acción 11">
+                <input type="text" placeholder="Acción 12">
+                <input type="text" placeholder="Acción 13">
+                <input type="text" placeholder="Acción 14">
+                <input type="text" placeholder="Acción 15">
+                <input type="text" placeholder="Acción 16">
             </div>
         </div>
 
-<!-- Mostrar los Valores -->
-<div class="form-section"><BR>
-    <h2>Valores</h2>
-    <div class="input-section">
-        <?php
-        if (!empty($valores_usuario['valores'])) {
-            if (is_array($valores_usuario['valores'])) {
-                foreach ($valores_usuario['valores'] as $valor) {
-                    // Mostrar cada valor individualmente
-                    echo nl2br('<div class="input-values">' . htmlspecialchars($valor) . '</div>');
-                }
-            } else {
-                // Si los valores no son un array, se muestra el valor único
-                echo nl2br('<div class="input-values">' . htmlspecialchars($valores_usuario['valores']) . '</div>');
-            }
-        } else {
-            // En caso de que no haya valores, mostrar un mensaje
-            echo '<div class="input-values">[Valores no ingresados]</div>';
-        }
-        ?>
-    </div>
-</div>
-
-        <!-- Botones de navegación -->
-        <div class="navigation-buttons">
-            <button onclick="window.location.href='index.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">ÍNDICE</button>
-
-            <button onclick="window.location.href='matriz.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">7. MATRIZ</button>
-
-        </div>
-
-        <div class="footer">
-            <p>&copy; 2024 Plan Estratégico. Todos los derechos reservados.</p>
+        <!-- Conclusiones -->
+        <div class="section">
+            <div class="section-title">CONCLUSIONES</div>
+            <textarea id="conclusiones" rows="4" placeholder="Anote las conclusiones más relevantes de su Plan"></textarea>
         </div>
     </div>
-</div>
 
 </body>
 </html>

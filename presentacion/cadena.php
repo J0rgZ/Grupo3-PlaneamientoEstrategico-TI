@@ -405,7 +405,7 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
         <!-- Fortalezas -->
         <h2 class="section-title">Fortalezas</h2>
         <table class="styled-table">
-            <?php for ($i = 0; $i < 4; $i++): ?>
+            <?php for ($i = 0; $i < 2; $i++): ?>
                 <tr>
                     <td class="label">F<?php echo $i + 1; ?>:</td>
                     <td>
@@ -421,7 +421,7 @@ $porcentaje_mejora = round($porcentaje_mejora * 100, 2); // Convertir a porcenta
         <!-- Debilidades -->
         <h2 class="section-title">Debilidades</h2>
         <table class="styled-table">
-            <?php for ($i = 0; $i < 4; $i++): ?>
+            <?php for ($i = 0; $i < 2; $i++): ?>
                 <tr>
                     <td class="label">D<?php echo $i + 1; ?>:</td>
                     <td>
