@@ -25,7 +25,7 @@ $user_diagnostico = $collection->findOne(['user_id' => $user_id]);
 // Valores de valoraciones, fortalezas y debilidades
 $amenazas = $user_diagnostico['amenazas'] ?? array_fill(0, 25, 0); // 25 preguntas
 $fortalezas = (array)($user_diagnostico['fortalezas'] ?? array_fill(0, 4, ''));
-$debilidades = (array)($user_diagnostico['debilidad'] ?? array_fill(0, 4, ''));
+$debilidades = (array)($user_diagnostico['debilidades'] ?? array_fill(0, 4, ''));
 $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 0);
 
 ?>
@@ -68,25 +68,25 @@ $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 
                     <input type="text" name="debilidad_<?php echo $i; ?>" 
                            value="<?php echo htmlspecialchars($debilidades[$i]); ?>" 
                            oninput="guardarValor('debilidad', <?php echo $i; ?>, this.value)" 
-                           class="input-field">
+                           class="input-field" readonly>
                 </td>
                 <td>
                     <input type="text" name="amenaza_<?php echo $i; ?>" 
                            value="<?php echo htmlspecialchars($amenazas[$i]); ?>" 
                            oninput="guardarValor('amenaza', <?php echo $i; ?>, this.value)" 
-                           class="input-field">
+                           class="input-field" readonly>
                 </td>
                 <td>
                     <input type="text" name="fortaleza_<?php echo $i; ?>" 
                            value="<?php echo htmlspecialchars($fortalezas[$i]); ?>" 
                            oninput="guardarValor('fortaleza', <?php echo $i; ?>, this.value)" 
-                           class="input-field">
+                           class="input-field" readonly>
                 </td>
                 <td>
                     <input type="text" name="oportunidad_<?php echo $i; ?>" 
                            value="<?php echo htmlspecialchars($oportunidades[$i]); ?>" 
                            oninput="guardarValor('oportunidad', <?php echo $i; ?>, this.value)" 
-                           class="input-field">
+                           class="input-field" readonly>
                 </td>
             </tr>
         <?php endfor; ?>
