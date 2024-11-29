@@ -256,7 +256,7 @@ $user_name = $_SESSION['username'] ?? 'Usuario'; // Nombre del usuario
                 <button class="nav-button" onclick="window.location.href='identificacion.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
                     <i class="fas fa-search"></i> 10. IDENTIFICACIÓN ESTRATÉGICA
                 </button>
-                <button class="nav-button" onclick="window.location.href='came.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
+                <button class="nav-button" onclick="window.location.href='matrizcame.php?plan_id=<?php echo htmlspecialchars($id_plan); ?>'">
                     <i class="fas fa-cogs"></i> 11. MATRIZ CAME
                 </button>
             </div>
