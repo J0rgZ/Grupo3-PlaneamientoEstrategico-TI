@@ -19,7 +19,23 @@ if (empty($_SESSION['csrf_token'])) {
 $mision_usuario = "";
 $vision_usuario = "";
 $valores_usuario = "";
+$nombre="";
 $plan_id = $_GET['plan_id'] ?? '';
+$fecha_creacion = $_GET['plan_id'] ?? '';
+
+
+$user_id = $_SESSION['user_id'];
+$collection = $db->diagnosticos;
+
+// Obtener los datos guardados del usuario
+$user_diagnostico = $collection->findOne(['user_id' => $user_id]);
+
+// Valores de valoraciones, fortalezas y debilidades
+//'nombre' => $nuevo_plan,
+$amenazas = $user_diagnostico['amenazas'] ?? array_fill(0, 25, 0); // 25 preguntas
+$fortalezas = (array)($user_diagnostico['fortalezas'] ?? array_fill(0, 4, ''));
+$debilidades = (array)($user_diagnostico['debilidad'] ?? array_fill(0, 4, ''));
+//$oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 0);
 
 // Recuperar los datos del plan desde MongoDB
 try {
@@ -36,6 +52,8 @@ try {
         $mision_usuario = $documento['mision'] ?? '';
         $vision_usuario = $documento['vision'] ?? '';
         $valores_usuario = $documento['valores'] ?? '';
+        $nombre = $documento['nombre'] ?? '';
+        $fecha_creacion = $documento['fecha'] ?? '';
         // Recuperar los objetivos desde MongoDB
         $objetivos_generales = $documento['objetivos_generales'] ?? [];
         $objetivos_especificos = $documento['objetivos_especificos'] ?? [];
@@ -242,11 +260,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="section">
             <div class="input-group">
                 <label for="empresa">Nombre de la empresa / proyecto:</label>
-                <input type="text" id="empresa" placeholder="Introduzca el nombre de la empresa / proyecto">
+                <textarea id="empresa" rows="4" placeholder="Introduzca el nombre de la empresa / proyecto" name="nombre" required><?php echo htmlspecialchars($nombre); ?></textarea>
+
             </div>
             <div class="input-group">
                 <label for="fecha">Fecha de elaboración:</label>
-                <input type="date" id="fecha">
+                <textarea type="date" id="fecha" rows="4" placeholder="Fecha de creacion " name="nombre" required><?php echo htmlspecialchars($fecha_creacion); ?></textarea>
+
             </div>
             <div class="input-group">
                 <label for="emprendedores">Emprendedores / promotores:</label>
@@ -329,22 +349,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <td>
                                 <input type="text" name="debilidad_<?php echo $i; ?>" 
                                        value="<?php echo htmlspecialchars($debilidades[$i]); ?>" 
-                                       class="input-field" readonly>
+                                       oninput="guardarValor('debilidad', <?php echo $i; ?>, this.value)" 
+                                       class="input-field">
                             </td>
                             <td>
                                 <input type="text" name="amenaza_<?php echo $i; ?>" 
                                        value="<?php echo htmlspecialchars($amenazas[$i]); ?>" 
-                                       class="input-field" readonly>
+                                       oninput="guardarValor('amenaza', <?php echo $i; ?>, this.value)" 
+                                       class="input-field">
                             </td>
                             <td>
                                 <input type="text" name="fortaleza_<?php echo $i; ?>" 
                                        value="<?php echo htmlspecialchars($fortalezas[$i]); ?>" 
-                                       class="input-field" readonly>
+                                       oninput="guardarValor('fortaleza', <?php echo $i; ?>, this.value)" 
+                                       class="input-field">
                             </td>
                             <td>
                                 <input type="text" name="oportunidad_<?php echo $i; ?>" 
                                        value="<?php echo htmlspecialchars($oportunidades[$i]); ?>" 
-                                       class="input-field" readonly>
+                                       oninput="guardarValor('oportunidad', <?php echo $i; ?>, this.value)" 
+                                       class="input-field">
                             </td>
                         </tr>
                     <?php endfor; ?>
