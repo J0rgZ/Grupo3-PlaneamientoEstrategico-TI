@@ -222,8 +222,15 @@ $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 
         </div>
 
         <div class="navigation-buttons">
-            <button class="nav-button" onclick="window.location.href='pest.php'">9. PEST</button>
-            <button class="nav-button" onclick="window.location.href='matriz_came.php'">11. Matriz CAME</button>
+            <form action="index.php?plan_id=<?php echo urlencode($plan_id); ?>" method="get" style="flex: 1; margin: 0 5px;">
+                <button type="submit" class="nav-button">ÍNDICE</button>
+            </form>
+            <form action="pest.php?plan_id=<?php echo urlencode($plan_id); ?>" method="get" style="flex: 1; margin: 0 5px;">
+                <button type="submit" class="nav-button">9. PEST</button>
+            </form>
+            <form action="matrizcame.php?plan_id=<?php echo urlencode($plan_id); ?>" method="get" style="flex: 1; margin: 0 5px;">
+                <button type="submit" class="nav-button">11. MATRIZ CAME</button>
+            </form>
         </div>
     </div>
 </body>

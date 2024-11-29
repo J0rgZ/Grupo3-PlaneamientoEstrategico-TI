@@ -258,7 +258,7 @@ try {
             <div class="navigation-buttons">
                 <button type="submit" name="action" value="index">ÍNDICE</button>
                 <button type="submit" name="action" value="vision">2. VISIÓN</button>
-                <button type="submit" name="action" value="resumen">4. RESUMEN</button>
+                <button type="submit" name="action" value="objetivos">4. OBJETIVOS</button>
             </div>
         </form>
 

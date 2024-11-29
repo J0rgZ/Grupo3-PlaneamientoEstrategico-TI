@@ -78,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valores']) && isset($
             case 'vision':
                 header("Location: ../presentacion/vision.php?plan_id=$plan_id_encoded");
                 exit();
-            case 'resumen':
-                header("Location: ../presentacion/resumen.php?plan_id=$plan_id_encoded");
+            case 'objetivos':
+                header("Location: ../presentacion/objetivos.php?plan_id=$plan_id_encoded");
                 exit();
             default:
                 // Redirigir a una página por defecto si la acción no coincide

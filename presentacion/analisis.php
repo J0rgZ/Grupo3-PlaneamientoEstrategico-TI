@@ -8,6 +8,8 @@ $analisisInterno = [
     "Debilidades" => "Bajos recursos financieros",
     "Fortalezas" => "Reputación de marca, calidad del producto"
 ];
+$plan_id = $_POST['plan_id'];
+$plan_id_encoded = urlencode($plan_id);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -60,14 +62,14 @@ $analisisInterno = [
     </div>
 
     <div class="navigation-buttons">
-        <form action="index.php" method="get" style="flex: 1; margin: 0 5px;">
+        <form action="index.php?plan_id=<?php echo $plan_id_encoded; ?>" method="get" style="flex: 1; margin: 0 5px;">
             <button type="submit" class="nav-button">ÍNDICE</button>
         </form>
-        <form action="vision.php" method="get" style="flex: 1; margin: 0 5px;">
-            <button type="submit" class="nav-button">2. VISIÓN</button>
+        <form action="objetivos.php?plan_id=<?php echo $plan_id_encoded; ?>" method="get" style="flex: 1; margin: 0 5px;">
+            <button type="submit" class="nav-button">4. OBJETIVOS</button>
         </form>
-        <form action="resumen.php" method="get" style="flex: 1; margin: 0 5px;">
-            <button type="submit" class="nav-button">4. RESUMEN</button>
+        <form action="cadena.php?plan_id=<?php echo $plan_id_encoded; ?>" method="get" style="flex: 1; margin: 0 5px;">
+            <button type="submit" class="nav-button">6. CADENA DE VALOR</button>
         </form>
     </div>
 </body>
