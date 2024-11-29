@@ -415,7 +415,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="section-title">CONCLUSIONES</div>
             <textarea id="conclusiones" rows="4" placeholder="Anote las conclusiones más relevantes de su Plan"></textarea>
         </div>
+        <button onclick="imprimir()">Descargar Pdf</button>
+
     </div>
+<script>
+  // Función para activar la interfaz de impresión
+  function imprimir() {
+    window.print();  // Dispara la interfaz de impresión del navegador
+  }
+</script>
 
 </body>
 </html>
