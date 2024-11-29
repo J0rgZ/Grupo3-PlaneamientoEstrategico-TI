@@ -1,7 +1,8 @@
 <?php
-require '../datos/conexion.php'; // Ajusta la ruta si es necesario
+
 
 session_start();
+require '../datos/conexion.php'; // Ajusta la ruta si es necesario
 if (isset($_POST['logout'])) {
     session_destroy();
     header("Location: login.php"); // Redirige a la página de inicio de sesión
@@ -12,6 +13,8 @@ if (!isset($_SESSION['user_id'])) {
     die("No estás autenticado.");
 }
 $plan_id = $_GET['plan_id'] ?? '';
+
+
 
 $user_id = $_SESSION['user_id'];
 $collection = $db->diagnosticos;
@@ -222,16 +225,11 @@ $oportunidades = (array)$user_diagnostico['oportunidades'] ?? array_fill(0, 25, 
         </div>
 
         <div class="navigation-buttons">
-            <form action="index.php?plan_id=<?php echo urlencode($plan_id); ?>" method="get" style="flex: 1; margin: 0 5px;">
-                <button type="submit" class="nav-button">ÍNDICE</button>
-            </form>
-            <form action="pest.php?plan_id=<?php echo urlencode($plan_id); ?>" method="get" style="flex: 1; margin: 0 5px;">
-                <button type="submit" class="nav-button">9. PEST</button>
-            </form>
-            <form action="matrizcame.php?plan_id=<?php echo urlencode($plan_id); ?>" method="get" style="flex: 1; margin: 0 5px;">
-                <button type="submit" class="nav-button">11. MATRIZ CAME</button>
-            </form>
+            <button type="button" class="nav-button" onclick="window.location.href='index.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">ÍNDICE</button>
+            <button type="button" class="nav-button" onclick="window.location.href='pest.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">9. PEST</button>
+            <button type="button" class="nav-button" onclick="window.location.href='matrizcame.php?plan_id=<?php echo htmlspecialchars($plan_id); ?>'">11. MATRIZ CAME</button>
         </div>
+
     </div>
 </body>
 </html>

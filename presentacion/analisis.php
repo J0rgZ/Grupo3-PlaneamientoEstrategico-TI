@@ -1,4 +1,6 @@
 <?php
+session_start();
+require '../datos/conexion.php'; // Ajusta la ruta si es necesario
 // Simulación de datos obtenidos dinámicamente
 $analisisExterno = [
     "Amenazas" => "Competencia fuerte, regulaciones",
@@ -8,7 +10,7 @@ $analisisInterno = [
     "Debilidades" => "Bajos recursos financieros",
     "Fortalezas" => "Reputación de marca, calidad del producto"
 ];
-$plan_id = $_POST['plan_id'];
+$plan_id = $_GET['plan_id'];
 $plan_id_encoded = urlencode($plan_id);
 ?>
 <!DOCTYPE html>
@@ -62,15 +64,10 @@ $plan_id_encoded = urlencode($plan_id);
     </div>
 
     <div class="navigation-buttons">
-        <form action="index.php?plan_id=<?php echo $plan_id_encoded; ?>" method="get" style="flex: 1; margin: 0 5px;">
-            <button type="submit" class="nav-button">ÍNDICE</button>
-        </form>
-        <form action="objetivos.php?plan_id=<?php echo $plan_id_encoded; ?>" method="get" style="flex: 1; margin: 0 5px;">
-            <button type="submit" class="nav-button">4. OBJETIVOS</button>
-        </form>
-        <form action="cadena.php?plan_id=<?php echo $plan_id_encoded; ?>" method="get" style="flex: 1; margin: 0 5px;">
-            <button type="submit" class="nav-button">6. CADENA DE VALOR</button>
-        </form>
+        <button type="button" class="nav-button" onclick="window.location.href='index.php?plan_id=<?php echo htmlspecialchars($plan_id_encoded); ?>'">ÍNDICE</button>
+        <button type="button" class="nav-button" onclick="window.location.href='objetivos.php?plan_id=<?php echo htmlspecialchars($plan_id_encoded); ?>'">4. OBJETIVOS</button>
+        <button type="button" class="nav-button" onclick="window.location.href='cadena.php?plan_id=<?php echo htmlspecialchars($plan_id_encoded); ?>'">6. CADENA DE VALOR</button>
     </div>
+
 </body>
 </html>
